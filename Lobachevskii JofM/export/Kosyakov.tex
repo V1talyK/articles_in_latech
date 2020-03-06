@@ -121,7 +121,7 @@ The inverse problem is solved in the optimization statement, which consists in m
 \begin{equation} \label{mape}
 J=\frac{1}{N}\sum_{i=1}^N{\left\vert\frac{p_c^i-p_f^i}{p_f^i}\right\vert}
 \end{equation}
-where $p_c^i$ is the calculated value of reservoir pressure, $p_f^i$ is the actual value, $i$ is the measurement number, $N$ is the number of measurements. The calculated values, in turn, depend on the parameters of the $u_k$ model. The solution is found using the gradient optimization algorithm and consists in determining the set of model parameters corresponding to the minimum $J$ and satisfying the constraints in the form of inequalities:
+where $p_c^i$ is the calculated value of reservoir pressure, $p_f^i$ is the actual value, $i$ is the measurement number, $N$ is the number of measurements. The calculated values, in turn, depend on the parameters of the model $u_k$. The solution is found using the gradient optimization algorithm and consists in determining the set of model parameters corresponding to the minimum $J$ and satisfying the constraints in the form of inequalities:
 \begin{equation*}
 u_{k\;min}\leq\ u_k\leq u_{k\;max}, \quad u_k \in \boldsymbol{u},
 \end{equation*}
@@ -149,7 +149,7 @@ The location of the wells is shown in the figure \ref{fig:map}, the dimensions a
       \center{\includegraphics[width=20pc]{fig1a.eps}}
     \end{minipage} \hfill
     \begin{minipage}[h]{0.29\linewidth}
-      \center{\includegraphics[width=6pc]{fig1b.eps}}
+      \center{\includegraphics[width=8pc]{fig1b.eps}}
     \end{minipage} 
     \caption{Schematic representation of the computational domain.}
     \label{fig:map}
