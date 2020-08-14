@@ -1,0 +1,238 @@
+\documentclass[14pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage[english,russian]{babel}
+
+\usepackage{graphicx}
+\usepackage{amsmath}
+
+\usepackage{hyperref}
+
+\usepackage[normalem]{ulem}  % для зачекивания текста
+
+%\usepackage{natbib}		% библиография
+
+%\usepackage{algorithm2e}	% Алгоритмы
+
+\begin{document}
+
+\title{Модель DeadOil}	
+\maketitle
+
+\section{Обозначения}
+	Определиться с обозначениями
+ 	\begin{align*}
+% 		& m - \text{индекс соответствующий матрице} \\
+%		& dp - \text{индекс соответствующий двойной среде} \\
+%		& \alpha - \text{индекс континуума, принимает значения m, dp} \\ 	
+%		& 0 - \text{индекс соответствует ссылочному состоянию} \\
+%		& \overline{x}_{\alpha} - \text{эффективное значение для параметра x, $\alpha$-ого континуума} \\
+%		& x^{*}_{\alpha} - \text{собственное (действительное) значение параметр x для материала $\alpha$-ого континуума }
+		& \alpha - \text{фаза}\\
+		& p \equiv p_{o} - \text{давление, при присутствии капелярных сил - давление нефти} 
+ 	\end{align*}
+ 	
+	intrinsic modulus/parament -- свойственный/собственный модель/параметр
+\section{Понимаю} 
+
+
+\section{Модель двухфазки (без упругости)}
+
+	\begin{equation}
+		\frac{\partial}{\partial t} \left( \frac{\phi S_{\alpha}}{B_{\alpha}} \right) - \nabla \left[ k \frac{k_{r \alpha}}{\mu_{\alpha} B_{\alpha}} \nabla \left( p \right) \right] = Q_{\alpha}
+	\end{equation}
+	
+	\begin{equation}
+		\sum_{\alpha} S_{\alpha} = 1, \qquad \alpha = o,w
+	\end{equation}
+	
+	\begin{equation}
+		p_{0} = p_{w} = p_{cow}(S_{w})
+	\end{equation}
+	
+	Дискретизация по времени
+	
+	
+	Дискретизация по пространству
+	
+	
+	IMPES
+	\begin{eqnarray}
+		C_{wp} \frac{\partial p}{\partial t} +
+		C_{ws} \frac{\partial S_{w}}{\partial t} -
+		\nabla \left[ k \frac{k_{rw}}{\mu_{w} B_{w}} \nabla \left( p \right) \right] = Q_{w} \\
+		C_{op} \frac{\partial p}{\partial t} +
+		C_{os} \frac{\partial S_{o}}{\partial t} -
+		\nabla \left[ k \frac{k_{ro}}{\mu_{o} B_{o}} \nabla \left( p \right) \right] = Q_{o}	
+	\end{eqnarray}
+	
+	
+	где $C_{\alpha p} = S_{\alpha} \left( \frac{C_{rock}}{B^{n}} + \phi^{n+1} C_{\alpha} \right)$, $C_{\alpha s} = \frac{\phi^{n+1}}{B^{n+1}}$, $C_{\alpha}$ -- сжимаемость фазы, $C_{rock}$ -- сжимаемость г.п.
+
+	Преобразования цель которых сократить член $\frac{\partial S_{\alpha}}{\partial t}$. Проделали получили уравнение для давления:
+	
+	\begin{equation}
+		\left[ C_{op} + \frac{C_{os}}{C_{ws}} C_{wp} \right] \frac{\partial p}{\partial t} -
+		\nabla \left[ k \left( \frac{k_{ro}}{\mu_{o} B_{o}} + \frac{C_{os}}{C_{ws}} \frac{k_{rw}}{\mu_{w} B_{w}} \right) \nabla p  \right] = Q_{o} + \frac{C_{os}}{C_{ws}} Q_{w} \\
+	\end{equation}
+	
+	Флюидная часть проводимости (IMPES)
+	\begin{equation}
+		T_{fluids} = \frac{k_{ro}}{\mu_{o} B_{o}} + \frac{C_{os}}{C_{ws}} \frac{k_{rw}}{\mu_{w} B_{w}}
+	\end{equation}
+	
+	Флюидная часть для фазы $\alpha$
+	\begin{equation}
+		T_{\alpha} = \frac{k_{r \alpha}}{\mu_{\alpha} B_{\alpha}} 
+	\end{equation}
+	
+	Уравнение для насыщенности имеет вид:
+	
+	\begin{equation}
+		C_{ws} \frac{\partial S_{w}}{\partial t} = 
+		\nabla \left[ k \left( \frac{k_{rw}}{\mu_{w} B_{w}} \right) \nabla p \right] -
+		C_{wp} \frac{\partial p}{\partial t} + 
+		Q_{o} \\
+	\end{equation}
+	
+	\begin{equation}
+		\frac{\partial S_{w}}{\partial t} =  
+		\underbrace{ \frac{1}{C_{ws}} 
+		\nabla \left[ k \left( \frac{k_{rw}}{\mu_{w} B_{w}} \right) \nabla p \right] }_{flux} -
+		\underbrace{ \frac{C_{wp}}{C_{ws}} \frac{\partial p}{\partial t} }_{compression/expansion} + 
+		\underbrace{ \frac{1}{C_{ws}} Q_{w} }_{source} \\
+	\end{equation}
+	
+	В коде я добавил источники/стоки в потоки. Таким образом остается 2 принципиальных механизма изменения насыщенности: поток (внутренние грани, внешние границы, скважины), сжимаемость.\\
+	
+	Возможные связи (дифузионный член):
+	\begin{itemize}
+		\item m2m -- матрица, неортогональность
+		\item dp2dp -- двойная среда
+		\item dp2dp -- двойная среда - матрицв
+		\item dfm2dfm -- дискретные трещины
+		\item dfm2m -- дискр. трещины с матрицей
+		\item dfm2dp -- дискр. трещины с двойной средой
+
+		\item w2m -- скв. с матрицей (!!!)
+		\item w2dp -- скв. с двойной средой (!!!)
+		
+		\item bound2m -- граница с матрицей (!!!)
+		\item bound2dp -- граница с двойной средой (!!!)
+	\end{itemize}
+	
+	Слабые нелинейности: \\
+	Среднее взвешенное арифметическое: $B_{\alpha}$, $\mu_{\alpha}$\\
+	Среднее взвешенное гармоническое: $k_{m,dp,dfm}$
+	
+	Сильные нелинейности:\\	
+	Up wind: $k_{r \alpha}$
+	
+	Особенности решения:
+	\begin{itemize}
+		\item upWind с учетом неортогональности для связей (m2m, dp2dp; dfm2m, dfm2dp)
+	\end{itemize}
+
+\section{Модель двухфазки (с упругостью)}	
+
+	Сначала сделать без двойной среды, потом ее добавить. 
+	
+	Уравнения для упругости, нефти, воды.
+	
+	\begin{eqnarray}
+	\nabla \cdot \left[ \mu \nabla u + \mu (\nabla u)^T + \lambda \boldsymbol{I} tr(u) \right] + \alpha \nabla p = 0 \label{mech_dpp} \\
+	C_{op} \frac{\partial p_{o}}{\partial t} + 
+	C_{os} \frac{\partial S_{o}}{\partial t} + 
+	C_{oe} \frac{\partial \varepsilon_{v}}{\partial t} = 
+	\nabla \cdot \left( k_{m} \frac{k_{ro}}{\mu_{o}} \nabla p_{o} \right) + 
+	Q_{o} \\
+	C_{wp} \frac{\partial p_{o}}{\partial t} + 
+	C_{ws} \frac{\partial S_{w}}{\partial t} + 
+	C_{we} \frac{\partial \varepsilon_{v}}{\partial t} = 
+	\nabla \cdot \left( k_{m} \frac{k_{rw}}{\mu_{w}} \nabla p_{o} \right) + 
+	Q_{w}
+	\end{eqnarray}
+	
+	здесь $C_{\alpha p} = S_{\alpha} \frac{1}{M} (\frac{1}{B_{\alpha}})$, $C_{\alpha s} = \frac{\phi^{n+1}}{B^{n+1}}$, $C_{\alpha e} = S_{\alpha} \frac{\alpha}{B_{\alpha}} $ (геомеханика)
+	
+	IMPES уравнения для давления
+	
+	\begin{eqnarray}
+		\left[ C_{wp} + \frac{C_{os}}{C_{ws}} C_{wp} \right] \frac{\partial p_{o}}{\partial t} + 
+		0 + 
+		\left[C_{oe} + \frac{C_{os}}{C_{ws}} C_{we} \right] \frac{\partial \varepsilon_{v}}{\partial t} = \\
+		\nabla \cdot \left( k \left[ \frac{k_{ro}}{\mu_{o} B_{o}} + \frac{C_{os}}{C_{ws}} \frac{k_{rw}}{\mu_{w} B_{w}} \right] \nabla p_{o} \right) + 
+		Q_{o} + \frac{C_{os}}{C_{ws}} Q_{w}
+	\end{eqnarray}
+	
+	Пересчет насыщенности
+	
+	\begin{eqnarray}
+		 \frac{\partial S_{w}}{\partial t} =
+		\frac{1}{C_{ws}} \nabla \cdot \left( k_{m} \frac{k_{rw}}{\mu_{w}} \nabla p_{o} \right) - 
+		\frac{C_{wp}}{C_{ws}} \frac{\partial p_{o}}{\partial t} -
+		\underbrace{ \frac{C_{we}}{C_{ws}} \frac{\partial \varepsilon_{v}}{\partial t} }_{geomech} +
+		\frac{1}{C_{ws}} Q_{w}
+	\end{eqnarray}
+	
+	\begin{eqnarray}
+		\frac{\partial S_{w}}{\partial t} =
+		\frac{1}{C_{ws}}  \left[ 
+		\underbrace{ \nabla \cdot \left( k_{m} \frac{k_{rw}}{\mu_{w}} \nabla p_{o} \right) + 
+	 	Q_{w} }_{fluxes} - 
+		\underbrace{ C_{wp} \frac{\partial p_{o}}{\partial t} }_{compression/expansion} -
+		\underbrace{ C_{we} \frac{\partial \varepsilon_{v}}{\partial t} }_{geomech} +
+		 \right]
+	\end{eqnarray}
+	
+	Вся разница при расчете насыщенности в этом маленьком члене, который вместе с $\frac{C_{wp}}{C_{ws}} \frac{\partial p_{o}}{\partial t}$ учитывает сжимаемость. 
+
+\newpage
+
+\begin{algorithm}[H]
+	\SetAlgoLined
+	
+	Preprocessor\;
+	\For{$n < N$}{
+		Подготовка источниковых членов для гидродинамики связанными с границей и скв.\;
+		\While{$\varepsilon < 1e-6$}{
+			Flow problem (pressure)\;
+			Mech propblem (displacement)\;
+		}
+		Flow problem (Saturation)\;
+	}
+	Postrocessor\;
+	\caption{Как все решается}
+\end{algorithm}
+
+\newpage
+
+\bibliographystyle{alpha}
+\begin{thebibliography}{10}
+
+	\bibitem{Kanevskaya2002} Каневская Р.Д. Математическое моделирование гидромеханических процессов разработки месторождений углеводородов. Институт компьютерных исследований, Москва-Ижевск, 2002 г., 140 стр., УДК: 532, ISBN: 5-93972-153-2
+
+	\bibitem{Ashworth2019} Ashworth, M., Doster, F. Foundations and Their Practical Implications for the Constitutive Coefficients of Poromechanical Dual-Continuum Models. Transp Porous Med 130, 699–730 (2019). https://doi.org/10.1007/s11242-019-01335-6	
+	
+	\bibitem{Nguyen2010} Nguyen, V.X., Abousleiman, Y.N.: Poromechanics solutions to plane strain and axisymmetric mandel-type problems in dual-porosity and dual-permeability medium. J. Appl. Mech. 77(1), 011002 (2010)
+
+	\bibitem{Barenblatt1960} Barenblatt, G., Zheltov, I., Kochina, I.: Basic concepts in the theory of seepage of homogeneous liquids in
+fissured rocks [strata]. J. Appl. Math. Mech. 24(5), 1286–1303 (1960)	
+	
+	\bibitem{Warren1963} Warren, J., Root, P.J., et al.: The behavior of naturally fractured reservoirs. Soc. Petrol. Eng. J. 3(03), 245–255 (1963)
+		
+	\bibitem{Choo2015} Choo, J., Borja, R.I.: Stabilized mixed finite elements for deformable porous media with double porosity.
+Comput. Methods Appl. Mech. Eng. 293, 131–154 (2015)
+
+	\bibitem{Lim1995} Lim, K.T., Aziz, K.: Matrix-fracture transfer shape factors for dual-porosity simulators. J. Pet. Sci. Eng. 13(3–4), 169–178 (1995)
+		
+	\bibitem{Berryman2002} Berryman, J.G., Pride, S.R.: Models for computing geomechanical constants of double-porosity materials from the constituents properties. J. Geophys. Res. Solid Earth 107(B3), ECV 2-1–ECV 2-14 (2002)
+	
+	\bibitem{Khalili1996} Khalili, N., Valliappan, S.: Unified theory of flow and deformation in double porous media. Eur. J. Mech. A Solids 15(2), 321–336 (1996)
+	
+\end{thebibliography}
+
+
+
+\end{document}
