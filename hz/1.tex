@@ -53,10 +53,10 @@ P = P_0\mbox{,\quad при $t=0$},
 \end{equation*}
 где $\sigma^*$ - гидропроводность, $P$ - пластовое давление, $\beta^*$ - эффективная сжимаемость, $h$ - эффективная толщина, $q_j$ - расход жидкости в $j$ скважине, $\Gamma_{in}$ - множество координат источников/стоков (скважин), $\Gamma_{out}$ - внешняя граница, $P_0$ - пластовое давление в начальный момент времени $t=0$, $q_{aq}$ - удельный расход жидкости через внешнюю границу.
 Гидропроводность $\sigma^*$ находится по формуле:
-\begin{equation}
-	\sigma^* = a \sigma+b,
+\begin{equation} \label{sig}
+	\sigma = a \sigma_0+b,
 \end{equation}
-где $\sigma$ - исходная гидропроводность, $a$ и $b$ - поправочные коэффициенты.
+где $\sigma_0$ - исходная гидропроводность, $a$ и $b$ - поправочные коэффициенты.
 
 
 Для замыкания уравнений (\ref{fil}) - (\ref{qaq}) используется модель водоносного контура, которую в общем виде можно представить в виде: 
@@ -66,13 +66,30 @@ F(P_{aq}, P,\boldsymbol{\nu})=0,
 где $\boldsymbol{\nu}$ - набор настраиваемых параметров водоносного контура, состав которого зависит от сложности модели. В расчётах использовались 4-х модели разной степени сложности \cite{dake},\cite{fet}.
 
 \textbf{\textit{Аквифер конечного объёма.}}
-Модель (M3) позволяет описать изменение давления $P_{aq}$ в аквифере имеющем конечный объём. 
+Модель (M3) позволяет описать изменение давления $p_{aq}$ в аквифере имеющем конечный объём. 
 \begin{equation}
-F(P_{aq}, P,\boldsymbol{\nu})=\beta^*V_{aq}\frac{dP_{aq}}{dt} - \lambda\oint_{\Gamma_{out}}\frac{\sigma}{h}(P-P_{aq})dl = 0,
+F(p_{aq}, p,\boldsymbol{\nu})=\beta^*V_{aq}\frac{dp_{aq}}{dt} - \lambda\oint_{\Gamma_{out}}\frac{\sigma}{h}(p-p_{aq})dl = 0,
 \end{equation}
 где $V_{aq}$ - объём аквифера. Модель имеет 2 настраиваемых параметра, $\boldsymbol{\nu} = [\lambda, V_{aq}]$.
 
+\section{Конечно-разностная форма} 
+Уравнение \ref{fil} в матричной форме можно записать в виде
+\begin{equation} \label{fil_fin_def}
+\boldsymbol{A}\boldsymbol{p}^n = \boldsymbol{\beta}\circ\boldsymbol{p}^{n-1} - q - \lambda\sigma\circ (\boldsymbol{p}^{n-1}-p_{aq}^{n-1}),
+\end{equation}
+где $ n $ - номер временного шага, матрицу коэффициентов $ A $ для дальнейших преобразований удобно представить в виде:
+\begin{equation} \label{adiag}
+\boldsymbol{A} = \boldsymbol{A_t} - diag\left(\boldsymbol{w}_0\right) - diag\left(\boldsymbol{\beta}\right),
+\end{equation}
+где $ \boldsymbol{A_T} $ - диагональная матрица проводимостей (нижний индекс Т -transmissibility), $ diag\left(\boldsymbol{w}_0\right) $ - диагональная матрица коэффициентов описывающих работу скважины, $ diag\left(\boldsymbol{\beta}\right) $ - диагональная матрица описывающая упругоёмкость породы.
 
+Модель "аквифера конечного объёма" в конечно-разностной форме в явном виде по времени можно записать следующим образом: 
+\begin{equation} \label{aq_num}
+\beta^* V_{aq}\frac{p_{aq}^n - p_{aq}^{n-1}}{\bigtriangleup t} = \lambda\sum_{i \in bnd}\sigma_i(p_i^{n-1}-p_{aq}^{n-1}),
+\end{equation}
+где $ i $ - номер ячейки, $bnd$ - множество индексов граничных ячеек.
+
+\section{Обратная задача}
 Обратная задача решается в оптимизационной постановке, которая заключается в минимизации целевой функции $J$, в качестве которой выступает "mean squared error" (MSE). Аргументами целевой функции выступают фактические (замеренные) и расчётные значения пластового давления в точках расположения скважин в заданные моменты времени. Целевая функция характеризует отклонение расчётных и фактических значений давления и записывается следующим образом:
 \begin{equation} \label{mape}
 J=\frac{1}{N}\sum_{i=1}^N{\left(p_f^i-p_c^i\right)^2}
@@ -84,7 +101,7 @@ u_{k\;min}\leq\ u_k\leq u_{k\;max}, \quad u_k \in \boldsymbol{u},
 $u_{k\;min}$ и $u_{k\;max}$ - минимальный и максимальные значения для каждого параметра.
 
 При использовании градиентного метода оптимизации, необходимо найти компоненты градиента целевой функции, которые можно записать в следующем виде:
-\begin{equation}
+\begin{equation}\label{dJ_du}
 	\frac{\partial J}{\partial u_k} = \frac{1}{N}\sum_{i=1}^N \left(p_f^i-p_c^i\right)\frac{\partial p_c^i}{\partial u_k}.
 \end{equation}
 Для решения оптимизационной задачи необходимо чтобы каждая компонента градиента целевой функции стремилась к 0, что можно записать как:
@@ -92,49 +109,93 @@ $u_{k\;min}$ и $u_{k\;max}$ - минимальный и максимальны�
 \frac{\partial J}{\partial u_k} \rightarrow 0
 \end{equation}
 
-Основную сложность составляет нахождение компонент градиента целевой функции, найдём их численно из уравнения 1, тогда они будут записаны следующим образом:
+\section{Запись градиентов}
+Основную сложность составляет нахождение компонент градиента целевой функции. Как видно из \ref{dJ_du} для расчёта любой компоненты градиента ЦФ необходимо найти производною от давления по интересующему нас параметру. Найдём их численно из уравнения \ref{fil_fin_def}. При настройке гидропроводности при помощи формулы  \ref{sig} необходимо найти компоненты градиента по $ a $ и $ b $. Их можно найти из уравнения \ref{fil_fin_def}, получим
 
 \begin{equation} \label{rp}
-(a*A_f+b-E\beta)P^n = \beta*P^{n-1} - \lambda(a\sigma+b)(P^{n-1}-P_{aq}^{n-1})
+\frac{d\boldsymbol{A}}{da}\boldsymbol{p}^n + \boldsymbol{A}\frac{d\boldsymbol{p}^n}{da} = \boldsymbol{\beta}\frac{d\boldsymbol{p}^{n-1}}{da} + \lambda\frac{d\boldsymbol{\sigma}}{da}(\boldsymbol{p}^{n-1}-p_{aq}^{n-1})+\lambda\boldsymbol{\sigma}\frac{d\boldsymbol{p}^{n-1}}{da},
 \end{equation}
+где $ \frac{d\boldsymbol{A}}{da} $ - разреженная матрица, $ \frac{d\boldsymbol{p}^n}{da} $ - искомый вектор, который можно найти решив СЛАУ преобразовав уравнение к виду $\textbf{A}\textbf{x}=\textbf{b}$. В результате преобразований получим:
 
 \begin{equation} \label{rp}
-A_fP^n + (a*A_f+b-E\beta)\frac{dP^n}{da} = \beta\frac{dP^{n-1}}{da} + \lambda\sigma(P^{n-1}-P_{aq}^{n-1})+\lambda(a\sigma+b)\frac{dP^{n-1}}{da}
+\boldsymbol{A}\frac{d\boldsymbol{p}^n}{da} = \boldsymbol{\beta}\frac{d\boldsymbol{p}^{n-1}}{da} + \lambda\frac{d\boldsymbol{\sigma}}{da}(\boldsymbol{p}^{n-1}-p_{aq}^{n-1})+\lambda\boldsymbol{\sigma}\frac{d\boldsymbol{p}^{n-1}}{da}-\frac{d\boldsymbol{A}}{da}\boldsymbol{p}^n,
 \end{equation}
 
-Уравнение можно преобразовать к виду $Ax=b$, получим:
+\begin{equation*} \label{dsig_da}
+\frac{d\boldsymbol{\sigma}}{da} = \boldsymbol{\sigma_0}
+\end{equation*}
+\begin{equation*} \label{dsig_db}
+\frac{d\boldsymbol{\sigma}}{db} = \boldsymbol{e}
+\end{equation*}
 
-\begin{equation} \label{rp}
-A\frac{dP^n}{da} = \beta\frac{dP^{n-1}}{da} + \lambda\sigma(P^{n-1}-P_{aq}^{n-1})+\lambda(a\sigma+b)\frac{dP^{n-1}}{da} - A_fP^n 
+\begin{equation} \label{dA_da}
+\frac{d\boldsymbol{A}}{da} = \frac{d\boldsymbol{A_t}}{da}-\frac{d\boldsymbol{w_o}}{da}
 \end{equation}
 
+\begin{equation} \label{Tij}
+T_{i,j} = \frac{2{\sigma_i}{\sigma_j}}{{\sigma_i} + {\sigma_j}}
+\end{equation}
+
+\begin{equation} \label{dTij_dsigma_i}
+\frac{T_{i,j}}{d\sigma_i} = 2\left(\frac{\sigma_j}{{\sigma_i} + {\sigma_j}}\right)^2
+\end{equation}
+
+\begin{equation} \label{dTij_da}
+\frac{T_{i,j}}{da} = \frac{T_{i,j}}{d\sigma_i}\frac{d\sigma_i}{da} + \frac{T_{i,j}}{d\sigma_j}\frac{d\sigma_j}{da}
+\end{equation}
+
+
+\begin{equation} \label{dT_da}
+\frac{d\boldsymbol{A}}{da} = \frac{d\boldsymbol{A_t}}{da}-\frac{d\boldsymbol{w_o}}{da}
+\end{equation}
+
+\begin{equation} \label{eq_dp_da}
+\boldsymbol{A}\frac{d\boldsymbol{p}^n}{da} = \boldsymbol{\beta}\frac{d\boldsymbol{p}^{n-1}}{da} + \lambda\boldsymbol{\sigma_0}(\boldsymbol{p}^{n-1}-p_{aq}^{n-1})+\lambda\boldsymbol{\sigma_0}\frac{d\boldsymbol{p}^{n-1}}{da}-\frac{d\boldsymbol{A}}{da}\boldsymbol{p}^n,
+\end{equation}
+
+\begin{equation} \label{eq_dp_db}
+\boldsymbol{A}\frac{d\boldsymbol{p}^n}{db} = \boldsymbol{\beta}\frac{d\boldsymbol{p}^{n-1}}{db} + \lambda(\boldsymbol{p}^{n-1}-p_{aq}^{n-1})+\lambda\frac{d\boldsymbol{p}^{n-1}}{db}-\frac{d\boldsymbol{A}}{db}\boldsymbol{p}^n,
+\end{equation}
+
+Для нахождения производной по $ \lambda $
 \begin{equation} \label{rp}
 \boldsymbol{A}\frac{d\boldsymbol{p}^n}{d\lambda} = \beta\frac{d\boldsymbol{p}^{n-1}}{d\lambda} + \sigma(\boldsymbol{p}^{n-1}-p_{aq}^{n-1})+\lambda\sigma(\frac{d\boldsymbol{p}^{n-1}}{d\lambda}-\frac{dp_{aq}^{n-1}}{d\lambda})
 \end{equation}
 
-\begin{equation} \label{rp}
+ Для нахождения порового объёма аквифера запишем искомый объём как $ V_{aq} = \gamma{V_0}_{aq}$, где $ {V_0}_{aq} $ исходное значения порового объёма и $ \gamma $ - коэффициент (множитель) на исходный поровый объём. Таким образом необходимо найти производную пластового давления по коэффициенту $ \gamma $.
+\begin{equation} \label{eq_dp_dgamma}
 \boldsymbol{A}\frac{d\boldsymbol{p}^n}{d\gamma} = \beta\frac{d\boldsymbol{p}^{n-1}}{d\gamma} + \lambda\sigma(\frac{d\boldsymbol{p}^{n-1}}{d\gamma}-\frac{dp_{aq}^{n-1}}{d\gamma})
 \end{equation}
 
-Производные по аквиферу
-\begin{equation} \label{rp}
-\beta^* \gamma V_{aq}\frac{p_{aq}^n - p_{aq}^{n-1}}{\bigtriangleup t} = \lambda\sum_{i \in bnd}\sigma_i(p_i^{n-1}-p_{aq}^{n-1})
+Из уравнения \ref{eq_dp_dgamma} видно, что необходимо найти производную давления в аквифере от параметра $ \gamma $. Найдём производные продифференцировав уравнение \ref{aq_num} по управляющим параметрам.
+%\begin{equation} \label{eq_daq_dgamma}
+%\beta^* \gamma V_{aq}\frac{p_{aq}^n - p_{aq}^{n-1}}{\bigtriangleup t} = \lambda\sum_{i \in bnd}\sigma_i(p_i^{n-1}-p_{aq}^{n-1})
+%\end{equation}
+
+Для краткости записи обозначим в уравнении \ref{aq_num} $ \beta_{aq} = \frac{c^* V_{aq}}{\bigtriangleup t} $. Тогда $ \beta_{aq} = \gamma{\beta_0}_{aq} $ и производная по продуктивности будет выглядеть следующим образом:
+\begin{equation} \label{eq_aq_dlambda}
+\gamma{\beta_0}_{aq}\left(\frac{p_{aq}^n}{d\lambda}  -\frac{p_{aq}^{n-1}}{d\lambda}\right) =\sum_{i \in bnd}\sigma_i(p^{n-1}_i-p_{aq}^{n-1}) +  \lambda\sum_{i \in bnd}\sigma_i(\frac{p^{n-1}_i}{d\lambda}-\frac{p_{aq}^{n-1}}{d\lambda})
 \end{equation}
-Производная по продуктивности
-\begin{equation} \label{rp}
-\gamma\frac{\beta^* V_{aq}}{\bigtriangleup t} \left(\frac{p_{aq}^n}{d\lambda}  -\frac{p_{aq}^{n-1}}{d\lambda}\right) =\sigma^*(p^{n-1}-p_{aq}^{n-1}) +  \lambda\sigma^*(\frac{p^{n-1}}{d\lambda}-\frac{p_{aq}^{n-1}}{d\lambda})
-\end{equation}
-\begin{equation} \label{rp}
-\frac{P_{aq}^n}{d\gamma} = \gamma\frac{\bigtriangleup t \lambda\sigma^*}{\beta^* V_{aq}} \left( \frac{P^{n-1}}{d\gamma}-\frac{P_{aq}^{n-1}}{d\gamma}\right) - \gamma (P_{aq}^n - P_{aq}^{n-1}) -\frac{P_{aq}^{n-1}}{d\gamma}
+Выразим
+\begin{equation} \label{eq_aq_dlambda}
+\frac{p_{aq}^n}{d\lambda} =\frac{1}{\gamma{\beta_0}_{aq}}\left(\sum_{i \in bnd}\sigma_i(p^{n-1}_i-p_{aq}^{n-1}) +  \lambda\sum_{i \in bnd}\sigma_i(\frac{p^{n-1}_i}{d\lambda}-\frac{p_{aq}^{n-1}}{d\lambda})\right) -\frac{p_{aq}^{n-1}}{d\lambda}
 \end{equation}
 
-Производная ко объёму
+Найдём производная по параметру $ \gamma $ 
+
+%\begin{equation} \label{rp}
+%\frac{p_{aq}^n}{d\gamma} = \gamma\frac{\lambda\sigma}{\beta_{aq}} \left( %\frac{p^{n-1}}{d\gamma}-\frac{p_{aq}^{n-1}}{d\gamma}\right) - \gamma (p_{aq}^n - p_{aq}^{n-1}) %-\frac{p_{aq}^{n-1}}{d\gamma}
+%\end{equation}
+
+
 \begin{equation} \label{rp}
-\frac{\beta^* V_{aq}}{\bigtriangleup t} (P_{aq}^n - P_{aq}^{n-1}) + \gamma\frac{\beta^* V_{aq}}{\bigtriangleup t} \left(\frac{P_{aq}^n}{d\gamma}  -\frac{P_{aq}^{n-1}}{d\gamma}\right) = \lambda\sigma^*(\frac{P^{n-1}}{d\gamma}-\frac{P_{aq}^{n-1}}{d\gamma})
+{\beta_0}_{aq}(p_{aq}^n - p_{aq}^{n-1}) + \gamma{\beta_0}_{aq} \left(\frac{p_{aq}^n}{d\gamma}  -\frac{p_{aq}^{n-1}}{d\gamma}\right) = \lambda\sum_{i \in bnd}\sigma_i(\frac{p^{n-1}_i}{d\gamma}-\frac{p_{aq}^{n-1}}{d\gamma})
 \end{equation}
+Выразим
 \begin{equation} \label{rp}
-\frac{P_{aq}^n}{d\gamma} = \gamma\frac{\bigtriangleup t \lambda\sigma^*}{\beta^* V_{aq}} \left( \frac{P^{n-1}}{d\gamma}-\frac{P_{aq}^{n-1}}{d\gamma}\right) - \gamma (P_{aq}^n - P_{aq}^{n-1}) -\frac{P_{aq}^{n-1}}{d\gamma}
+\frac{p_{aq}^n}{d\gamma}   = \frac{\lambda}{\gamma{\beta_0}_{aq} }\sum_{i \in bnd}\sigma_i(\frac{p^{n-1}_i}{d\gamma}-\frac{p_{aq}^{n-1}}{d\gamma}) - \frac{1}{\gamma}(p_{aq}^n - p_{aq}^{n-1}) + \frac{p_{aq}^{n-1}}{d\gamma}
 \end{equation}
+
 Решение обратной задачи (\ref{rp}) находится численно итерационым методом. На кажой итерации численно решается прямая задача (\ref{fil}-\ref{f_aq}) и осуществляется расчёт производных целевой функции по настраиваемым параметрам модели \cite{opt}. Численное решение находилось методом контрольного объёма  для двумерной неструктурированной разностной сетки при использвании неявной схемы по времени.
 
 
