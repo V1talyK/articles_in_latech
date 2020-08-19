@@ -21,14 +21,7 @@
 \maketitle
 
 \section{Обозначения}
-	Определиться с обозначениями
  	\begin{align*}
-% 		& m - \text{индекс соответствующий матрице} \\
-%		& dp - \text{индекс соответствующий двойной среде} \\
-%		& \alpha - \text{индекс континуума, принимает значения m, dp} \\ 	
-%		& 0 - \text{индекс соответствует ссылочному состоянию} \\
-%		& \overline{x}_{\alpha} - \text{эффективное значение для параметра x, $\alpha$-ого континуума} \\
-%		& x^{*}_{\alpha} - \text{собственное (действительное) значение параметр x для материала $\alpha$-ого континуума }
 		& \alpha - \text{фаза}\\
 		& p \equiv p_{o} - \text{давление, при присутствии капелярных сил - давление нефти} 
  	\end{align*}
@@ -37,7 +30,7 @@
 \section{Модель} 
 
 \begin{equation} \label{fil}
-	\nabla\sigma^*\nabla P = \beta^* h \frac{dP}{dt}+\delta(x,y)
+	\nabla\sigma\nabla p = c \cdot h \frac{dp}{dt}+\delta(x,y)
 \end{equation}
 
 
@@ -49,70 +42,97 @@ q_{aq}, \;при\;(x,y) \in \Gamma_{out}
 \end{array}\right.,
 \end{equation}
 \begin{equation*}
-P = P_0\mbox{,\quad при $t=0$},
+p = p_0\mbox{,\quad при $t=0$},
 \end{equation*}
-где $\sigma^*$ - гидропроводность, $P$ - пластовое давление, $\beta^*$ - эффективная сжимаемость, $h$ - эффективная толщина, $q_j$ - расход жидкости в $j$ скважине, $\Gamma_{in}$ - множество координат источников/стоков (скважин), $\Gamma_{out}$ - внешняя граница, $P_0$ - пластовое давление в начальный момент времени $t=0$, $q_{aq}$ - удельный расход жидкости через внешнюю границу.
-Гидропроводность $\sigma^*$ находится по формуле:
+где $\sigma$ - гидропроводность, $p$ - пластовое давление, $c$ - эффективная сжимаемость, $h$ - эффективная толщина, $q_j$ - расход жидкости в $j$ скважине, $\Gamma_{in}$ - множество координат источников/стоков (скважин), $\Gamma_{out}$ - внешняя граница, $p_0$ - пластовое давление в начальный момент времени $t=0$, $q_{aq}$ - удельный расход жидкости через внешнюю границу.
+Гидропроводность $\sigma$ находится по формуле:
 \begin{equation} \label{sig}
 	\sigma = a \sigma_0+b,
 \end{equation}
 где $\sigma_0$ - исходная гидропроводность, $a$ и $b$ - поправочные коэффициенты.
 
-
-Для замыкания уравнений (\ref{fil}) - (\ref{qaq}) используется модель водоносного контура, которую в общем виде можно представить в виде: 
+Для замыкания уравнений (\ref{fil}) - (\ref{bc}) используется модель водоносного контура, которую в общем виде можно представить в виде: 
 \begin{equation} \label{f_aq}
-F(P_{aq}, P,\boldsymbol{\nu})=0,
+F(p_{aq}, p,\boldsymbol{\nu})=0,
 \end{equation}
-где $\boldsymbol{\nu}$ - набор настраиваемых параметров водоносного контура, состав которого зависит от сложности модели. В расчётах использовались 4-х модели разной степени сложности \cite{dake},\cite{fet}.
-
-\textbf{\textit{Аквифер конечного объёма.}}
-Модель (M3) позволяет описать изменение давления $p_{aq}$ в аквифере имеющем конечный объём. 
-\begin{equation}
-F(p_{aq}, p,\boldsymbol{\nu})=\beta^*V_{aq}\frac{dp_{aq}}{dt} - \lambda\oint_{\Gamma_{out}}\frac{\sigma}{h}(p-p_{aq})dl = 0,
+где $\boldsymbol{\nu}$ - набор настраиваемых параметров водоносного контура, состав которого зависит от сложности модели. В Дальнейших расчётах и выкладках будет использована одна из 4-х моделей - модель аквифера конечного объёма \cite{dake},\cite{fet}.Эта модель позволяет описать изменение давления $p_{aq}$ в аквифере имеющем конечный объём и связанный с нефтяным пластом. 
+\begin{equation} \label{aq_analit}
+F(p_{aq}, p,\boldsymbol{\nu})=c_{aq}V_{aq}\frac{dp_{aq}}{dt} - \lambda\oint_{\Gamma_{out}}\frac{\sigma}{h}(p-p_{aq})dl = 0,
 \end{equation}
 где $V_{aq}$ - объём аквифера. Модель имеет 2 настраиваемых параметра, $\boldsymbol{\nu} = [\lambda, V_{aq}]$.
 
 \section{Конечно-разностная форма} 
-Уравнение \ref{fil} в матричной форме можно записать в виде
+При численном решении уравнение \ref{fil} записывается в матричном виде:
 \begin{equation} \label{fil_fin_def}
-\boldsymbol{A}\boldsymbol{p}^n = \boldsymbol{\beta}\circ\boldsymbol{p}^{n-1} - q - \lambda\sigma\circ (\boldsymbol{p}^{n-1}-p_{aq}^{n-1}),
+\boldsymbol{A}\boldsymbol{p}^n = \boldsymbol{\beta}\circ\boldsymbol{p}^{n-1} - \boldsymbol{q}^n - \lambda \cdot \boldsymbol{s}\circ\boldsymbol{\sigma}\circ (\boldsymbol{p}^{n-1}-p_{aq}^{n-1}),
 \end{equation}
-где $ n $ - номер временного шага, матрицу коэффициентов $ A $ для дальнейших преобразований удобно представить в виде:
-\begin{equation} \label{adiag}
+где $\boldsymbol{A}$ - разреженная диагональная матрица коэффициентов, $ \boldsymbol{p}^n $ - массив значений пластового давления для временного шага $ n $,  $ \boldsymbol{q}^n $ - массив значений расхода жидкости на скважинах, $ \boldsymbol{s} $ - массив значений описывающий контакт разностных ячеек с границей, значения равны 0 для ячеек не имеющих контакта с аквифером и не равны 0 для ячеек контактирующих с аквифером, элементы массив $ \boldsymbol{\beta} $ находится из формулы:
+
+\begin{equation} \label{beta_init}
+ \beta_i = \frac{c {V_p}_i}{\bigtriangleup t},
+\end{equation} 
+где $ {V_p}_i $ - объём пор $ i $ - той ячейки, ${\bigtriangleup t}$ - шаг по времени.
+Матрицу $\boldsymbol{A}$ для дальнейших преобразований удобно представить в виде:
+\begin{equation} \label{A_diag}
 \boldsymbol{A} = \boldsymbol{A_t} - diag\left(\boldsymbol{w}_0\right) - diag\left(\boldsymbol{\beta}\right),
 \end{equation}
-где $ \boldsymbol{A_T} $ - диагональная матрица проводимостей (нижний индекс Т -transmissibility), $ diag\left(\boldsymbol{w}_0\right) $ - диагональная матрица коэффициентов описывающих работу скважины, $ diag\left(\boldsymbol{\beta}\right) $ - диагональная матрица описывающая упругоёмкость породы.
+где $ \boldsymbol{A_t} $ - диагональная матрица проводимостей (нижний индекс $ "t" $ -transmissibility), $ diag\left(\boldsymbol{w}_0\right) $ - диагональная матрица продуктивностей скважины, $ diag\left(\boldsymbol{\beta}\right) $ - диагональная матрица описывающая "упругоёмкость" породы. Массив $\boldsymbol{w}_0$ содержит продуктивности скважин, значения равны 0 если через ячейку не проходит ни одной скважины. Продуктивность скважины рассчитывается по формуле Дюпюи:
+\begin{equation} \label{WI}
+w = 2 \pi\frac{\sigma}{ln\left(\frac{R_k}{r_w}\right)},
+\end{equation} 
+где $ R $ - приведенный радиус ячейки, $ r_w $ - радиус скважины.
 
 Модель "аквифера конечного объёма" в конечно-разностной форме в явном виде по времени можно записать следующим образом: 
 \begin{equation} \label{aq_num}
-\beta^* V_{aq}\frac{p_{aq}^n - p_{aq}^{n-1}}{\bigtriangleup t} = \lambda\sum_{i \in bnd}\sigma_i(p_i^{n-1}-p_{aq}^{n-1}),
+c_{aq} V_{aq}\frac{p_{aq}^n - p_{aq}^{n-1}}{\bigtriangleup t} = \lambda\sum_{i \in bnd}s_i\sigma_i(p_i^{n-1}-p_{aq}^{n-1}),
 \end{equation}
 где $ i $ - номер ячейки, $bnd$ - множество индексов граничных ячеек.
 
 \section{Обратная задача}
 Обратная задача решается в оптимизационной постановке, которая заключается в минимизации целевой функции $J$, в качестве которой выступает "mean squared error" (MSE). Аргументами целевой функции выступают фактические (замеренные) и расчётные значения пластового давления в точках расположения скважин в заданные моменты времени. Целевая функция характеризует отклонение расчётных и фактических значений давления и записывается следующим образом:
-\begin{equation} \label{mape}
+\begin{equation} \label{mse}
 J=\frac{1}{N}\sum_{i=1}^N{\left(p_f^i-p_c^i\right)^2}
 \end{equation}
-где $p_c^i$ -расчетное значение пластового давления, $p_f^i$ - фактическое значение, $i$ - номер замера, $N$ - количество замеров.Решение находится при использовании градиентного оптимизационного алгоритма и заключается в определении набора параметров модели соответствующих минимуму $J$ и удовлетворяющих ограничениям в виде неравенств:
+где $p_c^i$ -расчетное значение пластового давления, $p_f^i$ - фактическое значение, $i$ - номер замера, $N$ - количество замеров. Решение задачи можно искать при использовании градиентного оптимизационного алгоритма. Решение заключается в определении набора параметров модели соответствующих минимуму $J$ и удовлетворяющих ограничениям в виде неравенств:
 \begin{equation*}
 u_{k\;min}\leq\ u_k\leq u_{k\;max}, \quad u_k \in \boldsymbol{u},
 \end{equation*}
-$u_{k\;min}$ и $u_{k\;max}$ - минимальный и максимальные значения для каждого параметра.
+где $u_{k\;min}$ и $u_{k\;max}$ - минимальный и максимальные значения для каждого параметра. Помимо ограничения на управляющие параметры необходимо учитывать физические или экспертные ограничения на значения фазовых переменных (давлений). Так к примеру физическим нижним ограничением для значения давления является 0. В качестве верхнего ограничения может выступать значение максимально допустимое давление для насосов нагнетательных скважин или некоторая другая экспертная оценка максимально возможного давления. Ввиду особенности получаемого решения (уравнения Лапласа), минимальные и максимальные значения фазовых переменных получаются в ячейках в которых находятся активные (работающие) скважины, таким образом для учёта ограничений фазовых переменных можно контролировать только эти значения. Для учёта ограничения на фазовые переменные добавим в целевой функционал (\ref{mse}) штрафную функцию и получим: 
+\begin{equation} \label{mse_bnd_p}
+J=\frac{1}{N}\sum_{i=1}^N{\left(p_f^i-p_c^i\right)^2} + \sum_{k=1}^K{f_{SP}(p_{min} - p^k_c)} + \sum_{k=1}^K{f_{SP}(p^k_c-p_{max})},
+\end{equation}
+где $ p_{min} $ и $ p_{max} $ минимальное и максимальное ограничение на значение пластового давления соответственно, $K$ - количество расчетных значений пластового давления в ячейках с работающими скважинами,  $f_{SP}$ - функция активации "SoftPlus" \cite{Glorot2011}, которая записывается следующим образом:
+\begin{equation} \label{SP}
+f_{SP}(x) = \ln\left(1+e^{\alpha x}\right),
+\end{equation}
+производная 
+\begin{equation} \label{dSP}
+f'_{SP} = \frac{\alpha}{1+e^{-\alpha x}},
+\end{equation}
+где $ \alpha $ - масштабирующий коэффициент, при изменении которого можно регулировать степень влияния штрафной функции. Функция "SoftPlus" является гладкой и дифференцируемой, для всей области определения, что хорошо подходит для градиентных методов оптимизации. 
 
 При использовании градиентного метода оптимизации, необходимо найти компоненты градиента целевой функции, которые можно записать в следующем виде:
 \begin{equation}\label{dJ_du}
-	\frac{\partial J}{\partial u_k} = \frac{1}{N}\sum_{i=1}^N \left(p_f^i-p_c^i\right)\frac{\partial p_c^i}{\partial u_k}.
+	\frac{\partial J}{\partial u_k} = \frac{1}{N}\sum_{i=1}^N \left(p_f^i-p_c^i\right)\frac{\partial p_c^i}{\partial u_k} - \sum_{k=1}^K{f'_{SP}(p_{min} - p^k_c)\frac{\partial p_c^k}{\partial u_k}} + \sum_{k=1}^K{f'_{SP}(p^k_c-p_{max})\frac{\partial p_c^k}{\partial u_k}}.
 \end{equation}
 Для решения оптимизационной задачи необходимо чтобы каждая компонента градиента целевой функции стремилась к 0, что можно записать как:
 \begin{equation} \label{dJ_du0}
 \frac{\partial J}{\partial u_k} \rightarrow 0
 \end{equation}
+Как видно из (\ref{dJ_du}) для расчёта компонент градиента необходимо найти значения производных пластового давления от управляющих параметров.
 
-\section{Запись градиентов}
-Основную сложность составляет нахождение компонент градиента целевой функции. Как видно из \ref{dJ_du} для расчёта любой компоненты градиента ЦФ необходимо найти производною от давления по интересующему нас параметру. Найдём их численно из уравнения \ref{fil_fin_def}. При настройке гидропроводности при помощи формулы  \ref{sig} необходимо найти компоненты градиента по $ a $ и $ b $. Их можно найти из уравнения \ref{fil_fin_def}, получим
+\section{Нахождение компонент градиента}
+Основную сложность составляет нахождение компонент градиента целевой функции. Найдём их численно при использовании уравнений (\ref{fil_fin_def}) и (\ref{aq_num}). В качестве управляющих параметров $ u_k $ выступают коэффициенты $ a $ и $ b $ используемые в корректировке значений гидропроводности   (\ref{sig}), коэффициент продуктивности аквифера $ \lambda $ и поправочный коэффициент для порового объёма аквифера $ \gamma $. Коэффициент $ \gamma $ позволяет записать искомый объём как $ V_{aq} = \gamma{V_0}_{aq}$, где $ {V_0}_{aq} $ исходное значения порового объёма и $ \gamma $ - коэффициент (множитель) на исходный поровый объём. Таким образом вектор управляющих параметров $ \boldsymbol{u} = [a,b,\lambda,\gamma]$, найдём значения производных давления по этим параметрам.
 
-\begin{equation} \label{rp}
+\begin{eqnarray} \label{dFP_du}
+\frac{d\boldsymbol{A}}{du_k}\boldsymbol{p}^n + \boldsymbol{A}\frac{d\boldsymbol{p}^n}{du_k} =
+\boldsymbol{\beta}\frac{d\boldsymbol{p}^{n-1}}{du_k} + \frac{d\lambda}{du_k}\boldsymbol{\sigma}(\boldsymbol{p}^{n-1}-p_{aq}^{n-1})+ {} \nonumber\\
+{} + 
+\lambda\frac{d\boldsymbol{\sigma}}{du_k}(\boldsymbol{p}^{n-1}-p_{aq}^{n-1})+
+\lambda\boldsymbol{\sigma}\left(\frac{d\boldsymbol{p}^{n-1}}{du_k}-\frac{dp_{aq}^{n-1}}{du_k}\right),
+\end{eqnarray}
+
+\begin{equation} \label{dFP_da}
 \frac{d\boldsymbol{A}}{da}\boldsymbol{p}^n + \boldsymbol{A}\frac{d\boldsymbol{p}^n}{da} = \boldsymbol{\beta}\frac{d\boldsymbol{p}^{n-1}}{da} + \lambda\frac{d\boldsymbol{\sigma}}{da}(\boldsymbol{p}^{n-1}-p_{aq}^{n-1})+\lambda\boldsymbol{\sigma}\frac{d\boldsymbol{p}^{n-1}}{da},
 \end{equation}
 где $ \frac{d\boldsymbol{A}}{da} $ - разреженная матрица, $ \frac{d\boldsymbol{p}^n}{da} $ - искомый вектор, который можно найти решив СЛАУ преобразовав уравнение к виду $\textbf{A}\textbf{x}=\textbf{b}$. В результате преобразований получим:
@@ -162,7 +182,7 @@ T_{i,j} = \frac{2{\sigma_i}{\sigma_j}}{{\sigma_i} + {\sigma_j}}
 \boldsymbol{A}\frac{d\boldsymbol{p}^n}{d\lambda} = \beta\frac{d\boldsymbol{p}^{n-1}}{d\lambda} + \sigma(\boldsymbol{p}^{n-1}-p_{aq}^{n-1})+\lambda\sigma(\frac{d\boldsymbol{p}^{n-1}}{d\lambda}-\frac{dp_{aq}^{n-1}}{d\lambda})
 \end{equation}
 
- Для нахождения порового объёма аквифера запишем искомый объём как $ V_{aq} = \gamma{V_0}_{aq}$, где $ {V_0}_{aq} $ исходное значения порового объёма и $ \gamma $ - коэффициент (множитель) на исходный поровый объём. Таким образом необходимо найти производную пластового давления по коэффициенту $ \gamma $.
+  Таким образом необходимо найти производную пластового давления по коэффициенту $ \gamma $.
 \begin{equation} \label{eq_dp_dgamma}
 \boldsymbol{A}\frac{d\boldsymbol{p}^n}{d\gamma} = \beta\frac{d\boldsymbol{p}^{n-1}}{d\gamma} + \lambda\sigma(\frac{d\boldsymbol{p}^{n-1}}{d\gamma}-\frac{dp_{aq}^{n-1}}{d\gamma})
 \end{equation}
@@ -172,7 +192,7 @@ T_{i,j} = \frac{2{\sigma_i}{\sigma_j}}{{\sigma_i} + {\sigma_j}}
 %\beta^* \gamma V_{aq}\frac{p_{aq}^n - p_{aq}^{n-1}}{\bigtriangleup t} = \lambda\sum_{i \in bnd}\sigma_i(p_i^{n-1}-p_{aq}^{n-1})
 %\end{equation}
 
-Для краткости записи обозначим в уравнении \ref{aq_num} $ \beta_{aq} = \frac{c^* V_{aq}}{\bigtriangleup t} $. Тогда $ \beta_{aq} = \gamma{\beta_0}_{aq} $ и производная по продуктивности будет выглядеть следующим образом:
+С учётом \ref{beta_init} $ \beta_{aq} = \gamma{\beta_0}_{aq} $ и производная по продуктивности будет выглядеть следующим образом:
 \begin{equation} \label{eq_aq_dlambda}
 \gamma{\beta_0}_{aq}\left(\frac{p_{aq}^n}{d\lambda}  -\frac{p_{aq}^{n-1}}{d\lambda}\right) =\sum_{i \in bnd}\sigma_i(p^{n-1}_i-p_{aq}^{n-1}) +  \lambda\sum_{i \in bnd}\sigma_i(\frac{p^{n-1}_i}{d\lambda}-\frac{p_{aq}^{n-1}}{d\lambda})
 \end{equation}
@@ -196,162 +216,31 @@ T_{i,j} = \frac{2{\sigma_i}{\sigma_j}}{{\sigma_i} + {\sigma_j}}
 \frac{p_{aq}^n}{d\gamma}   = \frac{\lambda}{\gamma{\beta_0}_{aq} }\sum_{i \in bnd}\sigma_i\left(\frac{p^{n-1}_i}{d\gamma}-\frac{p_{aq}^{n-1}}{d\gamma}\right) - \frac{1}{\gamma}\left(p_{aq}^n - p_{aq}^{n-1}\right) + \frac{p_{aq}^{n-1}}{d\gamma}
 \end{equation}
 
-Решение обратной задачи (\ref{mape}) находится численно итерационым методом. На кажой итерации численно решается прямая задача (\ref{fil}-\ref{f_aq}) и осуществляется расчёт производных целевой функции по настраиваемым параметрам модели \cite{opt}. Численное решение находилось методом контрольного объёма  для двумерной неструктурированной разностной сетки при использвании неявной схемы по времени.
+Решение обратной задачи (\ref{mse}) находится численно итерационным методом. На каждой итерации численно решается прямая (\ref{fil}-\ref{f_aq}) и сопряжённая задачи, в процессе которых происходит расчет как показателей разработки и производных целевой функции по настраиваемым параметрам. Численное решение прямой задачи находилось методом контрольного объёма  для двумерной неструктурированной разностной сетки при использовании неявной схемы по времени.
 
+Процесс решения задачи можно представить в виде следующего алгоритма
 
-\section{Модель двухфазки (без упругости)}
+\begin{enumerate}
+	\item Задаются начальные приближения по всем адаптируемым параметрам
+	\item Для $ t=0 $, рассчитываются значения производных давления по управляющим параметрам
+	\item Для $ t=1:N $ рассчитываются значения параметров разработки и значения слагаемых компонента градиента целевой функции
+	\item Расчет целевой функции и проверка значений при помощи критериев остановки, если выполняется выход иначе далее
+	\item Зная значений компонент градиента целевой функции рассчитывается новый вектор управляющих параметров
+	\item Проверка рассчитанных параметров на удовлетворение ограничениям
+	\item Переходим к п.1
+\end{enumerate}
 
-	\begin{equation}
-		\frac{\partial}{\partial t} \left( \frac{\phi S_{\alpha}}{B_{\alpha}} \right) - \nabla \left[ k \frac{k_{r \alpha}}{\mu_{\alpha} B_{\alpha}} \nabla \left( p \right) \right] = Q_{\alpha}
-	\end{equation}
-	
-	\begin{equation}
-		\sum_{\alpha} S_{\alpha} = 1, \qquad \alpha = o,w
-	\end{equation}
-	
-	\begin{equation}
-		p_{0} = p_{w} = p_{cow}(S_{w})
-	\end{equation}
-	
-	Дискретизация по времени
-	
-	
-	Дискретизация по пространству
-	
-	
-	IMPES
-	\begin{eqnarray}
-		C_{wp} \frac{\partial p}{\partial t} +
-		C_{ws} \frac{\partial S_{w}}{\partial t} -
-		\nabla \left[ k \frac{k_{rw}}{\mu_{w} B_{w}} \nabla \left( p \right) \right] = Q_{w} \\
-		C_{op} \frac{\partial p}{\partial t} +
-		C_{os} \frac{\partial S_{o}}{\partial t} -
-		\nabla \left[ k \frac{k_{ro}}{\mu_{o} B_{o}} \nabla \left( p \right) \right] = Q_{o}	
-	\end{eqnarray}
-	
-	
-	где $C_{\alpha p} = S_{\alpha} \left( \frac{C_{rock}}{B^{n}} + \phi^{n+1} C_{\alpha} \right)$, $C_{\alpha s} = \frac{\phi^{n+1}}{B^{n+1}}$, $C_{\alpha}$ -- сжимаемость фазы, $C_{rock}$ -- сжимаемость г.п.
+В начальный момент времени $ n=0 $ значения производных давления по управляющим параметрам равны 0:
 
-	Преобразования цель которых сократить член $\frac{\partial S_{\alpha}}{\partial t}$. Проделали получили уравнение для давления:
-	
-	\begin{equation}
-		\left[ C_{op} + \frac{C_{os}}{C_{ws}} C_{wp} \right] \frac{\partial p}{\partial t} -
-		\nabla \left[ k \left( \frac{k_{ro}}{\mu_{o} B_{o}} + \frac{C_{os}}{C_{ws}} \frac{k_{rw}}{\mu_{w} B_{w}} \right) \nabla p  \right] = Q_{o} + \frac{C_{os}}{C_{ws}} Q_{w} \\
-	\end{equation}
-	
-	Флюидная часть проводимости (IMPES)
-	\begin{equation}
-		T_{fluids} = \frac{k_{ro}}{\mu_{o} B_{o}} + \frac{C_{os}}{C_{ws}} \frac{k_{rw}}{\mu_{w} B_{w}}
-	\end{equation}
-	
-	Флюидная часть для фазы $\alpha$
-	\begin{equation}
-		T_{\alpha} = \frac{k_{r \alpha}}{\mu_{\alpha} B_{\alpha}} 
-	\end{equation}
-	
-	Уравнение для насыщенности имеет вид:
-	
-	\begin{equation}
-		C_{ws} \frac{\partial S_{w}}{\partial t} = 
-		\nabla \left[ k \left( \frac{k_{rw}}{\mu_{w} B_{w}} \right) \nabla p \right] -
-		C_{wp} \frac{\partial p}{\partial t} + 
-		Q_{o} \\
-	\end{equation}
-	
-	\begin{equation}
-		\frac{\partial S_{w}}{\partial t} =  
-		\underbrace{ \frac{1}{C_{ws}} 
-		\nabla \left[ k \left( \frac{k_{rw}}{\mu_{w} B_{w}} \right) \nabla p \right] }_{flux} -
-		\underbrace{ \frac{C_{wp}}{C_{ws}} \frac{\partial p}{\partial t} }_{compression/expansion} + 
-		\underbrace{ \frac{1}{C_{ws}} Q_{w} }_{source} \\
-	\end{equation}
-	
-	В коде я добавил источники/стоки в потоки. Таким образом остается 2 принципиальных механизма изменения насыщенности: поток (внутренние грани, внешние границы, скважины), сжимаемость.\\
-	
-	Возможные связи (дифузионный член):
-	\begin{itemize}
-		\item m2m -- матрица, неортогональность
-		\item dp2dp -- двойная среда
-		\item dp2dp -- двойная среда - матрицв
-		\item dfm2dfm -- дискретные трещины
-		\item dfm2m -- дискр. трещины с матрицей
-		\item dfm2dp -- дискр. трещины с двойной средой
+$\frac{d\boldsymbol{p}^0}{d\gamma} = \frac{d\boldsymbol{p}^0}{d\lambda} = \frac{d\boldsymbol{p}^0}{da} = \frac{d\boldsymbol{p}^0}{db} = 0$
 
-		\item w2m -- скв. с матрицей (!!!)
-		\item w2dp -- скв. с двойной средой (!!!)
-		
-		\item bound2m -- граница с матрицей (!!!)
-		\item bound2dp -- граница с двойной средой (!!!)
-	\end{itemize}
-	
-	Слабые нелинейности: \\
-	Среднее взвешенное арифметическое: $B_{\alpha}$, $\mu_{\alpha}$\\
-	Среднее взвешенное гармоническое: $k_{m,dp,dfm}$
-	
-	Сильные нелинейности:\\	
-	Up wind: $k_{r \alpha}$
-	
-	Особенности решения:
-	\begin{itemize}
-		\item upWind с учетом неортогональности для связей (m2m, dp2dp; dfm2m, dfm2dp)
-	\end{itemize}
+$\frac{p_{aq}^0}{d\gamma} = \frac{p_{aq}^0}{d\lambda} = \frac{p_{aq}^0}{da} = \frac{p_{aq}^0}{db} = 0$
 
-\section{Модель двухфазки (с упругостью)}	
+В связи с чем для нахождения на первом временном шаге значений производных давления необходимо знать значения фазовых переменных, которые получаются из решения прямой задачи. На последующих временных шагах для расчёта производных по давлению необходимо также знать значения фазовых переменных и значения производных по давлению с прошлого временного шага.
 
-	Сначала сделать без двойной среды, потом ее добавить. 
-	
-	Уравнения для упругости, нефти, воды.
-	
-	\begin{eqnarray}
-	\nabla \cdot \left[ \mu \nabla u + \mu (\nabla u)^T + \lambda \boldsymbol{I} tr(u) \right] + \alpha \nabla p = 0 \label{mech_dpp} \\
-	C_{op} \frac{\partial p_{o}}{\partial t} + 
-	C_{os} \frac{\partial S_{o}}{\partial t} + 
-	C_{oe} \frac{\partial \varepsilon_{v}}{\partial t} = 
-	\nabla \cdot \left( k_{m} \frac{k_{ro}}{\mu_{o}} \nabla p_{o} \right) + 
-	Q_{o} \\
-	C_{wp} \frac{\partial p_{o}}{\partial t} + 
-	C_{ws} \frac{\partial S_{w}}{\partial t} + 
-	C_{we} \frac{\partial \varepsilon_{v}}{\partial t} = 
-	\nabla \cdot \left( k_{m} \frac{k_{rw}}{\mu_{w}} \nabla p_{o} \right) + 
-	Q_{w}
-	\end{eqnarray}
-	
-	здесь $C_{\alpha p} = S_{\alpha} \frac{1}{M} (\frac{1}{B_{\alpha}})$, $C_{\alpha s} = \frac{\phi^{n+1}}{B^{n+1}}$, $C_{\alpha e} = S_{\alpha} \frac{\alpha}{B_{\alpha}} $ (геомеханика)
-	
-	IMPES уравнения для давления
-	
-	\begin{eqnarray}
-		\left[ C_{wp} + \frac{C_{os}}{C_{ws}} C_{wp} \right] \frac{\partial p_{o}}{\partial t} + 
-		0 + 
-		\left[C_{oe} + \frac{C_{os}}{C_{ws}} C_{we} \right] \frac{\partial \varepsilon_{v}}{\partial t} = \\
-		\nabla \cdot \left( k \left[ \frac{k_{ro}}{\mu_{o} B_{o}} + \frac{C_{os}}{C_{ws}} \frac{k_{rw}}{\mu_{w} B_{w}} \right] \nabla p_{o} \right) + 
-		Q_{o} + \frac{C_{os}}{C_{ws}} Q_{w}
-	\end{eqnarray}
-	
-	Пересчет насыщенности
-	
-	\begin{eqnarray}
-		 \frac{\partial S_{w}}{\partial t} =
-		\frac{1}{C_{ws}} \nabla \cdot \left( k_{m} \frac{k_{rw}}{\mu_{w}} \nabla p_{o} \right) - 
-		\frac{C_{wp}}{C_{ws}} \frac{\partial p_{o}}{\partial t} -
-		\underbrace{ \frac{C_{we}}{C_{ws}} \frac{\partial \varepsilon_{v}}{\partial t} }_{geomech} +
-		\frac{1}{C_{ws}} Q_{w}
-	\end{eqnarray}
-	
-	\begin{eqnarray}
-		\frac{\partial S_{w}}{\partial t} =
-		\frac{1}{C_{ws}}  \left[ 
-		\underbrace{ \nabla \cdot \left( k_{m} \frac{k_{rw}}{\mu_{w}} \nabla p_{o} \right) + 
-	 	Q_{w} }_{fluxes} - 
-		\underbrace{ C_{wp} \frac{\partial p_{o}}{\partial t} }_{compression/expansion} -
-		\underbrace{ C_{we} \frac{\partial \varepsilon_{v}}{\partial t} }_{geomech} +
-		 \right]
-	\end{eqnarray}
-	
-	Вся разница при расчете насыщенности в этом маленьком члене, который вместе с $\frac{C_{wp}}{C_{ws}} \frac{\partial p_{o}}{\partial t}$ учитывает сжимаемость. 
+\section{Вычислительный эксперимент}
 
-\newpage
-
+\section{Анализ производительности вычислений}
 
 \newpage
 
@@ -377,6 +266,8 @@ Comput. Methods Appl. Mech. Eng. 293, 131–154 (2015)
 	\bibitem{Berryman2002} Berryman, J.G., Pride, S.R.: Models for computing geomechanical constants of double-porosity materials from the constituents properties. J. Geophys. Res. Solid Earth 107(B3), ECV 2-1–ECV 2-14 (2002)
 	
 	\bibitem{Khalili1996} Khalili, N., Valliappan, S.: Unified theory of flow and deformation in double porous media. Eur. J. Mech. A Solids 15(2), 321–336 (1996)
+	
+	 \bibitem {Glorot2011} Xavier Glorot, Antoine Bordes, Yoshua Bengio. Deep sparse rectifier neural networks. International Conference on Artificial Intelligence and Statistics (2011).
 	
 \end{thebibliography}
 
