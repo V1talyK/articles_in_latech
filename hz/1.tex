@@ -66,7 +66,7 @@ F(p_{aq}, p,\boldsymbol{\nu})=c_{aq}V_{aq}\frac{dp_{aq}}{dt} - \lambda\oint_{\Ga
 \begin{equation} \label{fil_fin_def}
 \boldsymbol{A}\boldsymbol{p}^n = \boldsymbol{\beta}\circ\boldsymbol{p}^{n-1} - \boldsymbol{q}^n - \lambda \cdot \boldsymbol{s}\circ\boldsymbol{\sigma}\circ (\boldsymbol{p}^{n-1}-p_{aq}^{n-1}),
 \end{equation}
-где $\boldsymbol{A}$ - разреженная диагональная матрица коэффициентов, $ \boldsymbol{p}^n $ - массив значений пластового давления для временного шага $ n $,  $ \boldsymbol{q}^n $ - массив значений расхода жидкости на скважинах, $ \boldsymbol{s} $ - массив значений описывающий контакт разностных ячеек с границей, значения равны 0 для ячеек не имеющих контакта с аквифером и не равны 0 для ячеек контактирующих с аквифером, элементы массив $ \boldsymbol{\beta} $ находится из формулы:
+где $\boldsymbol{A}$ - разреженная диагональная матрица коэффициентов, $ \boldsymbol{p}^n $ - массив значений пластового давления, $ n $ номер временного шага $ n=1:N_t $,  $ N_t $ - количество временных шагов, $ \boldsymbol{q}^n $ - массив значений расхода жидкости на скважинах, $ \boldsymbol{s} $ - массив значений описывающий контакт разностных ячеек с границей, значения равны 0 для ячеек не имеющих контакта с аквифером и не равны 0 для ячеек контактирующих с аквифером, элементы массив $ \boldsymbol{\beta} $ находится из формулы:
 
 \begin{equation} \label{beta_init}
  \beta_i = \frac{c {V_p}_i}{\bigtriangleup t},
@@ -96,9 +96,9 @@ c_{aq} V_{aq}\frac{p_{aq}^n - p_{aq}^{n-1}}{\bigtriangleup t} =
 J=\frac{1}{N}\sum_{i=1}^N{\left(p_f^i-p_c^i\right)^2}
 \end{equation}
 где $p_c^i$ -расчетное значение пластового давления, $p_f^i$ - фактическое значение, $i$ - номер замера, $N$ - количество замеров. Решение задачи можно искать при использовании градиентного оптимизационного алгоритма. Решение заключается в определении набора параметров модели соответствующих минимуму $J$ и удовлетворяющих ограничениям в виде неравенств:
-\begin{equation*}
+\begin{equation} \label{ubnd}
 u_{k\;min}\leq\ u_k\leq u_{k\;max}, \quad u_k \in \boldsymbol{u},
-\end{equation*}
+\end{equation}
 где $u_{k\;min}$ и $u_{k\;max}$ - минимальный и максимальные значения для каждого параметра. Помимо ограничения на управляющие параметры необходимо учитывать физические или экспертные ограничения на значения фазовых переменных (давлений). Так к примеру физическим нижним ограничением для значения давления является 0. В качестве верхнего ограничения может выступать значение максимально допустимое давление для насосов нагнетательных скважин или некоторая другая экспертная оценка максимально возможного давления. Ввиду особенности получаемого решения (уравнения Лапласа), минимальные и максимальные значения фазовых переменных получаются в ячейках в которых находятся активные (работающие) скважины, таким образом для учёта ограничений фазовых переменных можно контролировать только эти значения. Для учёта ограничения на фазовые переменные добавим в целевой функционал (\ref{mse}) штрафную функцию и получим: 
 \begin{equation} \label{mse_bnd_p}
 J=\frac{1}{N}\sum_{i=1}^N{\left(p_f^i-p_c^i\right)^2} + \sum_{k=1}^K{f_{SP}(p_{min} - p^k_c)} + \sum_{k=1}^K{f_{SP}(p^k_c-p_{max})},
@@ -114,9 +114,10 @@ f'_{SP} = \frac{\alpha}{1+e^{-\alpha x}},
 где $ \alpha $ - масштабирующий коэффициент, при изменении которого можно регулировать степень влияния штрафной функции. Функция "SoftPlus" является гладкой и дифференцируемой, для всей области определения, что хорошо подходит для градиентных методов оптимизации. 
 
 При использовании градиентного метода оптимизации, необходимо найти компоненты градиента целевой функции, которые можно записать в следующем виде:
-\begin{equation}\label{dJ_du}
-	\frac{\partial J}{\partial u_k} = \frac{1}{N}\sum_{i=1}^N \left(p_f^i-p_c^i\right)\frac{\partial p_c^i}{\partial u_k} - \sum_{k=1}^K{f'_{SP}(p_{min} - p^k_c)\frac{\partial p_c^k}{\partial u_k}} + \sum_{k=1}^K{f'_{SP}(p^k_c-p_{max})\frac{\partial p_c^k}{\partial u_k}}.
-\end{equation}
+\begin{multline}\label{dJ_du}
+	\frac{\partial J}{\partial u_k} = \frac{1}{N}\sum_{i=1}^N \left(p_f^i-p_c^i\right)\frac{\partial p_c^i}{\partial u_k} - \sum_{k=1}^K{f'_{SP}(p_{min} - p^k_c)\frac{\partial p_c^k}{\partial u_k}} + {} \\ {}
+	 + \sum_{k=1}^K{f'_{SP}(p^k_c-p_{max})\frac{\partial p_c^k}{\partial u_k}}.
+\end{multline}
 Для решения оптимизационной задачи необходимо чтобы каждая компонента градиента целевой функции стремилась к 0, что можно записать как:
 \begin{equation} \label{dJ_du0}
 \frac{\partial J}{\partial u_k} \rightarrow 0
@@ -134,13 +135,13 @@ V_{aq} = \gamma{V_0}_{aq},
  \end{equation}
   Таким образом вектор управляющих параметров $ \boldsymbol{u} = [a,b,\lambda,\gamma]$, найдём значения производных давления по управляющим параметрам, при продифференцируем уравнение (\ref{fil_fin_def}), в общем виде получим:
 
-\begin{eqnarray} \label{dFP_du}
+\begin{multline} \label{dFP_du}
 \frac{\partial \boldsymbol{A}}{\partial u_k}\boldsymbol{p}^n + \boldsymbol{A}\frac{\partial \boldsymbol{p}^n}{\partial u_k} =
-\boldsymbol{\beta}\circ\frac{\partial \boldsymbol{p}^{n-1}}{\partial u_k} + \frac{\partial \lambda}{\partial u_k}\boldsymbol{\sigma}\circ(\boldsymbol{p}^{n-1}-p_{aq}^{n-1})+ {} \nonumber\\
+\boldsymbol{\beta}\circ\frac{\partial \boldsymbol{p}^{n-1}}{\partial u_k} + \frac{\partial \lambda}{\partial u_k}\boldsymbol{\sigma}\circ(\boldsymbol{p}^{n-1}-p_{aq}^{n-1})+ {} \\
 {} + 
 \lambda\frac{\partial \boldsymbol{\sigma}}{\partial u_k}\circ(\boldsymbol{p}^{n-1}-p_{aq}^{n-1})+
 \lambda\boldsymbol{\sigma}\circ\left(\frac{\partial \boldsymbol{p}^{n-1}}{\partial u_k}-\frac{\partial p_{aq}^{n-1}}{\partial u_k}\right),
-\end{eqnarray}
+\end{multline}
 где $ \frac{\partial \boldsymbol{A}}{\partial u_k} $ - разреженная матрица, $ \frac{\partial \boldsymbol{p}^n}{\partial u_k} $ - искомый вектор, который можно найти решив СЛАУ преобразовав уравнение к виду "$\textbf{A}\textbf{x}=\textbf{b}$".
 
 Продифференцировав уравнение (\ref{aq_num}) получим
@@ -181,20 +182,20 @@ T_{i,j} = \frac{2{\sigma_i}{\sigma_j}}{{\sigma_i} + {\sigma_j}}
 \begin{equation} \label{dWI}
 \frac{\partial w_i}{\partial u_k} = \frac{\partial w_i}{\partial \sigma_i}\frac{\partial \sigma_i}{\partial u_k} =  \frac{2 \pi}{ln\left(\frac{R_k}{r_w}\right)}\frac{\partial \sigma_i}{\partial u_k}.
 \end{equation} 
-Матрица $ diag(\frac{\partial \boldsymbol{\beta}}{\partial u_k}) $ при $ u_k \in [a,b]$ нулевая. Приведем уравнение (\ref{dFP_du})к виду "$\textbf{A}\textbf{x}=\textbf{b}$" при $u = a,b$:
+Матрица $ diag(\frac{\partial \boldsymbol{\beta}}{\partial u_k}) $ при $ u_k \in [a,b]$ нулевая. Приведем уравнение (\ref{dFP_du})к виду "$\textbf{A}\textbf{x}=\textbf{b}$" при $u = a,b,\lambda,\gamma$:
 
-\begin{eqnarray} \label{eq_dp_da}
+\begin{multline} \label{eq_dp_da}
 \boldsymbol{A}\frac{\partial \boldsymbol{p}^n}{\partial a} = \boldsymbol{\beta}\frac{\partial\boldsymbol{p}^{n-1}}{\partial a}
-+ \lambda\boldsymbol{\sigma_0} \circ \left(\boldsymbol{p}^{n-1}-p_{aq}^{n-1}\right) +  {} \nonumber\\
++ \lambda\boldsymbol{\sigma_0} \circ \left(\boldsymbol{p}^{n-1}-p_{aq}^{n-1}\right) +  {} \\
 {} +\lambda\boldsymbol{\sigma} \circ \left(\frac{\partial \boldsymbol{p}^{n-1}}{\partial a}-\frac{\partial p_{aq}^{n-1}}{\partial a}\right)
 -\frac{\partial \boldsymbol{A}}{\partial a}\boldsymbol{p}^n,
-\end{eqnarray}
+\end{multline}
 
-\begin{eqnarray} \label{eq_dp_db}
-\boldsymbol{A}\frac{\partial \boldsymbol{p}^n}{\partial b} = \boldsymbol{\beta}\frac{\partial\boldsymbol{p}^{n-1}}{\partial b} + \lambda(\boldsymbol{p}^{n-1}-p_{aq}^{n-1}) +  {} \nonumber\\
+\begin{multline} \label{eq_dp_db}
+\boldsymbol{A}\frac{\partial \boldsymbol{p}^n}{\partial b} = \boldsymbol{\beta}\frac{\partial\boldsymbol{p}^{n-1}}{\partial b} + \lambda(\boldsymbol{p}^{n-1}-p_{aq}^{n-1}) +  {} \\
 {} + \lambda\boldsymbol{\sigma} \circ \left(\frac{\partial \boldsymbol{p}^{n-1}}{\partial b}-\frac{\partial p_{aq}^{n-1}}{\partial b}\right)
 -\frac{\partial\boldsymbol{A}}{\partial b}\boldsymbol{p}^n,
-\end{eqnarray}
+\end{multline}
 
 \begin{equation} \label{eq_dp_dlam}
 \boldsymbol{A}\frac{\partial \boldsymbol{p}^n}{\partial \lambda}
@@ -203,7 +204,7 @@ T_{i,j} = \frac{2{\sigma_i}{\sigma_j}}{{\sigma_i} + {\sigma_j}}
  -\frac{\partial p_{aq}^{n-1}}{\partial \lambda}\right)
 \end{equation}
 
-При учётом (\ref{beta_gamma}) запишем уравнение для нахождения производной пластового давления по коэффициенту $ \gamma $.
+При учёте (\ref{beta_gamma}) запишем уравнение для нахождения производной пластового давления по параметру $ \gamma $.
 \begin{equation} \label{eq_dp_dgamma}
 \boldsymbol{A}\frac{\partial \boldsymbol{p}^n}{\partial \gamma} =
  \beta\frac{\partial \boldsymbol{p}^{n-1}}{\partial \gamma}
@@ -211,56 +212,63 @@ T_{i,j} = \frac{2{\sigma_i}{\sigma_j}}{{\sigma_i} + {\sigma_j}}
   -\frac{\partial p_{aq}^{n-1}}{\partial \gamma}\right)
 \end{equation}
 
-Из уравнения \ref{eq_dp_dgamma} видно, что необходимо найти производную давления в аквифере от параметра $ \gamma $. Найдём производные продифференцировав уравнение \ref{aq_num} по управляющим параметрам.
-%\begin{equation} \label{eq_daq_dgamma}
-%\beta^* \gamma V_{aq}\frac{p_{aq}^n - p_{aq}^{n-1}}{\bigtriangleup t} = \lambda\sum_{i \in bnd}\sigma_i(p_i^{n-1}-p_{aq}^{n-1})
-%\end{equation}
 
-С учётом \ref{beta_init} $ \beta_{aq} = \gamma{\beta_0}_{aq} $ и производная по продуктивности будет выглядеть следующим образом:
-\begin{equation} \label{eq_aq_dlambda}
-\gamma{\beta_0}_{aq}\left(\frac{p_{aq}^n}{d\lambda}  -\frac{p_{aq}^{n-1}}{d\lambda}\right) =\sum_{i \in bnd}\sigma_i(p^{n-1}_i-p_{aq}^{n-1}) +  \lambda\sum_{i \in bnd}\sigma_i(\frac{p^{n-1}_i}{d\lambda}-\frac{p_{aq}^{n-1}}{d\lambda})
-\end{equation}
-Выразим
-\begin{equation} \label{eq_aq_dlambda}
-\frac{p_{aq}^n}{d\lambda} =\frac{1}{\gamma{\beta_0}_{aq}}\left(\sum_{i \in bnd}\sigma_i(p^{n-1}_i-p_{aq}^{n-1}) +  \lambda\sum_{i \in bnd}\sigma_i(\frac{p^{n-1}_i}{d\lambda}-\frac{p_{aq}^{n-1}}{d\lambda})\right) -\frac{p_{aq}^{n-1}}{d\lambda}
-\end{equation}
+Для замыкания уравнений (\ref{eq_dp_da} - \ref{eq_dp_dgamma}) необходимо выразить производную давления в аквифере от управляющих параметров. Запишем уравнение \ref{dFAq_num} для всех управляющих параметров.
 
-Найдём производную по параметру $ \gamma $ 
+\begin{multline} \label{dAQ_da}
+\frac{\partial p_{aq}^n}{\partial a}
+= \frac{\lambda}{\gamma{\beta_0}_{aq}}\sum_{i \in bnd}s_i{\sigma_0}_i\left(p_i^{n-1}-p_{aq}^{n-1}\right) +  {} \\
+{} +\frac{\lambda}{\gamma{\beta_0}_{aq}}\sum_{i \in bnd}s_i\sigma_i\left(\frac{\partial p_i^{n-1}}{\partial a}-\frac{\partial p_{aq}^{n-1}}{\partial a}\right)+ \frac{\partial p_{aq}^{n-1}}{\partial a},
+\end{multline}
 
-%\begin{equation} \label{rp}
-%\frac{p_{aq}^n}{d\gamma} = \gamma\frac{\lambda\sigma}{\beta_{aq}} \left( %\frac{p^{n-1}}{d\gamma}-\frac{p_{aq}^{n-1}}{d\gamma}\right) - \gamma (p_{aq}^n - p_{aq}^{n-1}) %-\frac{p_{aq}^{n-1}}{d\gamma}
-%\end{equation}
+\begin{multline} \label{dAQ_db}
+\frac{\partial p_{aq}^n}{\partial b}
+= \frac{\lambda}{\gamma{\beta_0}_{aq}}\sum_{i \in bnd}s_i \left(p_i^{n-1}-p_{aq}^{n-1}\right) +  {} \\
+{} +\frac{\lambda}{\gamma{\beta_0}_{aq}}\sum_{i \in bnd}s_i\sigma_i\left(\frac{\partial p_i^{n-1}}{\partial b}-\frac{\partial p_{aq}^{n-1}}{\partial b}\right) + \frac{\partial p_{aq}^{n-1}}{\partial b},
+\end{multline}
 
+\begin{multline} \label{dAQ_dlam}
+\frac{\partial p_{aq}^n}{\partial \lambda}
+= \frac{\lambda}{\gamma{\beta_0}_{aq}}\sum_{i \in bnd}s_i\sigma_i\left(p_i^{n-1}-p_{aq}^{n-1}\right) +  {} \\
+{} +
+\frac{\lambda}{\gamma{\beta_0}_{aq}}\sum_{i \in bnd}s_i\sigma_i\left(\frac{\partial p_i^{n-1}}{\partial \lambda}-\frac{\partial p_{aq}^{n-1}}{\partial \lambda}\right)+ \frac{\partial p_{aq}^{n-1}}{\partial \lambda}.
+\end{multline}
+С учётом (\ref{beta_init}) запишем $ \beta_{aq} = \gamma{\beta_0}_{aq} $ и производная по продуктивности будет выглядеть следующим образом:
 
-\begin{equation} \label{eq_aq_dgamma}
-{\beta_0}_{aq}(p_{aq}^n - p_{aq}^{n-1}) + \gamma{\beta_0}_{aq} \left(\frac{p_{aq}^n}{d\gamma}  -\frac{p_{aq}^{n-1}}{d\gamma}\right) = \lambda\sum_{i \in bnd}\sigma_i(\frac{p^{n-1}_i}{d\gamma}-\frac{p_{aq}^{n-1}}{d\gamma})
-\end{equation}
-Выразим
-\begin{equation} \label{eq_dpaq_dgamm}
-\frac{p_{aq}^n}{d\gamma}   = \frac{\lambda}{\gamma{\beta_0}_{aq} }\sum_{i \in bnd}\sigma_i\left(\frac{p^{n-1}_i}{d\gamma}-\frac{p_{aq}^{n-1}}{d\gamma}\right) - \frac{1}{\gamma}\left(p_{aq}^n - p_{aq}^{n-1}\right) + \frac{p_{aq}^{n-1}}{d\gamma}
-\end{equation}
+\begin{multline} \label{dAQ_dgamma}
+\frac{\partial p_{aq}^n}{\partial \gamma} 
+= \frac{\lambda}{\gamma{\beta_0}_{aq}}\sum_{i \in bnd}s_i\sigma_i\left(\frac{\partial p_i^{n-1}}{\partial \gamma}-\frac{\partial p_{aq}^{n-1}}{\partial \gamma}\right)  -  {} \\
+{} - \frac{1}{\gamma}\left(p_{aq}^n - p_{aq}^{n-1}\right)
++ \frac{\partial p_{aq}^{n-1}}{\partial \gamma}.
+\end{multline}
+Уравнения (\ref{eq_dp_da} - \ref{dAQ_dgamma}) позволяют рассчитать значения производных пластового давления по управляющим параметрам. 
 
-Решение обратной задачи (\ref{mse}) находится численно итерационным методом. На каждой итерации численно решается прямая (\ref{fil}-\ref{f_aq}) и сопряжённая задачи, в процессе которых происходит расчет как показателей разработки и производных целевой функции по настраиваемым параметрам. Численное решение прямой задачи находилось методом контрольного объёма  для двумерной неструктурированной разностной сетки при использовании неявной схемы по времени.
+\section{Алгоритм расчёта}
+Решение обратной задачи (\ref{mse_bnd_p}) находится численно методом градиентного спуска. На каждой итерации решается прямая (\ref{fil}-\ref{f_aq}) и сопряженная (\ref{eq_dp_da} - \ref{eq_dp_dgamma}) задачи. При решении которых происходит расчет показателей разработки, значений производных пластового давления по управляющим параметрам и слагаемых для расчёта компонент градиента  целевой функции. Процесс поиска решения задачи можно представить в виде следующего алгоритма:
 
-Процесс решения задачи можно представить в виде следующего алгоритма
-
-\begin{enumerate}
-	\item Задаются начальные приближения по всем адаптируемым параметрам
-	\item Для $ t=0 $, рассчитываются значения производных давления по управляющим параметрам
-	\item Для $ t=1:N $ рассчитываются значения параметров разработки и значения слагаемых компонента градиента целевой функции
-	\item Расчет целевой функции и проверка значений при помощи критериев остановки, если выполняется выход иначе далее
-	\item Зная значений компонент градиента целевой функции рассчитывается новый вектор управляющих параметров
-	\item Проверка рассчитанных параметров на удовлетворение ограничениям
-	\item Переходим к п.1
+\begin{enumerate} 
+	\item Задаются начальные приближения по управляющим параметрам $ \boldsymbol{u}  = \boldsymbol{u_0}$, номер итерации k:=1;
+	\item \label{list_1_2}Решается прямая и сопряжённая задачи:
+	\begin{enumerate}
+		\item \label{list_2_a} Для $ n=0 $, задаются начальные условия для пластового давления, значения производных давления по управляющим параметрам равны 0;
+		\item Для $ n=1:N_t $ последовательно рассчитываются значения фазовых переменных и параметров разработки, значения производных пластового давления по управляющим параметрам и слагаемые компонента градиента целевой функции;
+		\item Расчет значений целевой функции $ J_k $;
+	\end{enumerate}
+	\item Проверка критериев остановки, если выполняется выход, иначе далее;
+	\item Рассчитывается при помощи значений компонент градиента целевой функции вектор управляющих параметров $ u_k $, $k := k+1$
+	\item Проверка полученных управлений на предмет удовлетворения ограничениям (\ref{ubnd})
+	\item Переходим к п.2
 \end{enumerate}
 
-В начальный момент времени $ n=0 $ значения производных давления по управляющим параметрам равны 0:
+В процессе решения на каждом временном шаге первым находится прямое решение, после чего находится сопряженное решение. При допущении стационарного состояния в начальный момент, можно предположить отсутствие влияния управляющих параметров на начальные условия, следовательно в начальный момент времени $ n=0 $  п.\ref{list_2_a} значения производных давления по управляющим параметрам равны 0:
+\begin{equation*}
+\frac{d\boldsymbol{p}^0}{d\gamma} = \frac{d\boldsymbol{p}^0}{d\lambda} = \frac{d\boldsymbol{p}^0}{da} = \frac{d\boldsymbol{p}^0}{db} = 0
+\end{equation*}
+\begin{equation*}
+\frac{p_{aq}^0}{d\gamma} = \frac{p_{aq}^0}{d\lambda} = \frac{p_{aq}^0}{da} = \frac{p_{aq}^0}{db} = 0
+\end{equation*}
 
-$\frac{d\boldsymbol{p}^0}{d\gamma} = \frac{d\boldsymbol{p}^0}{d\lambda} = \frac{d\boldsymbol{p}^0}{da} = \frac{d\boldsymbol{p}^0}{db} = 0$
-
-$\frac{p_{aq}^0}{d\gamma} = \frac{p_{aq}^0}{d\lambda} = \frac{p_{aq}^0}{da} = \frac{p_{aq}^0}{db} = 0$
-
-В связи с чем для нахождения на первом временном шаге значений производных давления необходимо знать значения фазовых переменных, которые получаются из решения прямой задачи. На последующих временных шагах для расчёта производных по давлению необходимо также знать значения фазовых переменных и значения производных по давлению с прошлого временного шага.
+Таким образом для нахождения на первом (и последующих) временном шаге значений производных давления необходимо знать значения фазовых переменных с текущего и предыдущего, временного шагов, а также значния производных с предыдущего временного шага.
 
 \section{Вычислительный эксперимент}
 
