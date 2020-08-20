@@ -82,9 +82,11 @@ w = 2 \pi\frac{\sigma}{ln\left(\frac{R_k}{r_w}\right)},
 \end{equation} 
 где $ R $ - приведенный радиус ячейки, $ r_w $ - радиус скважины.
 
-Модель "аквифера конечного объёма" в конечно-разностной форме в явном виде по времени можно записать следующим образом: 
+Модель "аквифера конечного объёма" в конечно-разностной форме в явном виде по времени можно записать следующим образом сделав замену (\ref{beta_init}): 
 \begin{equation} \label{aq_num}
-c_{aq} V_{aq}\frac{p_{aq}^n - p_{aq}^{n-1}}{\bigtriangleup t} = \lambda\sum_{i \in bnd}s_i\sigma_i(p_i^{n-1}-p_{aq}^{n-1}),
+c_{aq} V_{aq}\frac{p_{aq}^n - p_{aq}^{n-1}}{\bigtriangleup t} = 
+\beta_{aq}(p_{aq}^n - p_{aq}^{n-1}) =  
+\lambda\sum_{i \in bnd}s_i\sigma_i(p_i^{n-1}-p_{aq}^{n-1}),
 \end{equation}
 где $ i $ - номер ячейки, $bnd$ - множество индексов граничных ячеек.
 
@@ -122,69 +124,91 @@ f'_{SP} = \frac{\alpha}{1+e^{-\alpha x}},
 Как видно из (\ref{dJ_du}) для расчёта компонент градиента необходимо найти значения производных пластового давления от управляющих параметров.
 
 \section{Нахождение компонент градиента}
-Основную сложность составляет нахождение компонент градиента целевой функции. Найдём их численно при использовании уравнений (\ref{fil_fin_def}) и (\ref{aq_num}). В качестве управляющих параметров $ u_k $ выступают коэффициенты $ a $ и $ b $ используемые в корректировке значений гидропроводности   (\ref{sig}), коэффициент продуктивности аквифера $ \lambda $ и поправочный коэффициент для порового объёма аквифера $ \gamma $. Коэффициент $ \gamma $ позволяет записать искомый объём как $ V_{aq} = \gamma{V_0}_{aq}$, где $ {V_0}_{aq} $ исходное значения порового объёма и $ \gamma $ - коэффициент (множитель) на исходный поровый объём. Таким образом вектор управляющих параметров $ \boldsymbol{u} = [a,b,\lambda,\gamma]$, найдём значения производных давления по этим параметрам.
+Основную сложность составляет нахождение компонент градиента целевой функции. Найдём их численно при использовании уравнений (\ref{fil_fin_def}) и (\ref{aq_num}). В качестве управляющих параметров $ u_k $ выступают коэффициенты $ a $ и $ b $ используемые в корректировке значений гидропроводности   (\ref{sig}), коэффициент продуктивности аквифера $ \lambda $ и поправочный коэффициент для порового объёма аквифера $ \gamma $. Коэффициент $ \gamma $ позволяет записать искомый объём как:
+\begin{equation*} \label{gamma_init}
+V_{aq} = \gamma{V_0}_{aq},
+\end{equation*}
+ где $ {V_0}_{aq}$ -  исходное значения порового объёма и $ \gamma $ - коэффициент (множитель) на исходный поровый объём, тогда используя {\ref{beta_init}}, получим:
+ \begin{equation} \label{beta_gamma}
+ \beta_{aq} = \gamma {\beta_0}_{aq},
+ \end{equation}
+  Таким образом вектор управляющих параметров $ \boldsymbol{u} = [a,b,\lambda,\gamma]$, найдём значения производных давления по управляющим параметрам, при продифференцируем уравнение (\ref{fil_fin_def}), в общем виде получим:
 
 \begin{eqnarray} \label{dFP_du}
-\frac{d\boldsymbol{A}}{du_k}\boldsymbol{p}^n + \boldsymbol{A}\frac{d\boldsymbol{p}^n}{du_k} =
-\boldsymbol{\beta}\frac{d\boldsymbol{p}^{n-1}}{du_k} + \frac{d\lambda}{du_k}\boldsymbol{\sigma}(\boldsymbol{p}^{n-1}-p_{aq}^{n-1})+ {} \nonumber\\
+\frac{\partial \boldsymbol{A}}{\partial u_k}\boldsymbol{p}^n + \boldsymbol{A}\frac{\partial \boldsymbol{p}^n}{\partial u_k} =
+\boldsymbol{\beta}\circ\frac{\partial \boldsymbol{p}^{n-1}}{\partial u_k} + \frac{\partial \lambda}{\partial u_k}\boldsymbol{\sigma}\circ(\boldsymbol{p}^{n-1}-p_{aq}^{n-1})+ {} \nonumber\\
 {} + 
-\lambda\frac{d\boldsymbol{\sigma}}{du_k}(\boldsymbol{p}^{n-1}-p_{aq}^{n-1})+
-\lambda\boldsymbol{\sigma}\left(\frac{d\boldsymbol{p}^{n-1}}{du_k}-\frac{dp_{aq}^{n-1}}{du_k}\right),
+\lambda\frac{\partial \boldsymbol{\sigma}}{\partial u_k}\circ(\boldsymbol{p}^{n-1}-p_{aq}^{n-1})+
+\lambda\boldsymbol{\sigma}\circ\left(\frac{\partial \boldsymbol{p}^{n-1}}{\partial u_k}-\frac{\partial p_{aq}^{n-1}}{\partial u_k}\right),
 \end{eqnarray}
+где $ \frac{\partial \boldsymbol{A}}{\partial u_k} $ - разреженная матрица, $ \frac{\partial \boldsymbol{p}^n}{\partial u_k} $ - искомый вектор, который можно найти решив СЛАУ преобразовав уравнение к виду "$\textbf{A}\textbf{x}=\textbf{b}$".
 
-\begin{equation} \label{dFP_da}
-\frac{d\boldsymbol{A}}{da}\boldsymbol{p}^n + \boldsymbol{A}\frac{d\boldsymbol{p}^n}{da} = \boldsymbol{\beta}\frac{d\boldsymbol{p}^{n-1}}{da} + \lambda\frac{d\boldsymbol{\sigma}}{da}(\boldsymbol{p}^{n-1}-p_{aq}^{n-1})+\lambda\boldsymbol{\sigma}\frac{d\boldsymbol{p}^{n-1}}{da},
+Продифференцировав уравнение (\ref{aq_num}) получим
+\begin{eqnarray} \label{dFAq_num}
+\frac{\partial \beta_{aq}}{\partial u_k}\left(p_{aq}^n - p_{aq}^{n-1}\right)
++\beta_{aq}\left(\frac{\partial p_{aq}^n}{\partial u_k} - \frac{\partial p_{aq}^{n-1}}{\partial u_k}\right)
+ = \frac{\partial \lambda}{\partial u_k}\sum_{i \in bnd}s_i\sigma_i\left(p_i^{n-1}-p_{aq}^{n-1}\right)+ {} \nonumber\\
+ {} + \lambda\sum_{i \in bnd}s_i\frac{\partial \sigma_i}{\partial u_k}\left(p_i^{n-1}-p_{aq}^{n-1}\right)+
+ \lambda\sum_{i \in bnd}s_i\sigma_i\left(\frac{\partial p_i^{n-1}}{\partial u_k}-\frac{\partial p_{aq}^{n-1}}{\partial u_k}\right).
+\end{eqnarray}
+Используя уравнение (\ref{dFP_du}) запишем уравнения для нахождения значения производных по давлению для каждого управляющего параметра. Первым найдем уравнения для поправок на значения гидропроводности $ a $ и $ b $ из уравнения (\ref{sig}). Помимо фазовых переменных (давления) и непосредственно самой гидропроводности от управляющих параметров $ a $ и $ b $ зависит матрица $ \boldsymbol{A} $. Для удобства матрицу $ \boldsymbol{A} $ запишем в виде суммы матриц (\ref{A_diag}), значения гидропроводности используется только в слагаемых отвечающих за проводимость между ячейками и продуктивность скважин, таким образом матрицу содержащую производные по эементов матрицы по управляющим параметрам можно записать следующим образом:
+\begin{equation} \label{dA_du_k}
+\frac{\partial \boldsymbol{A}}{du_k} = \frac{\partial \boldsymbol{A_t}}{\partial u_k}-diag(\frac{\partial \boldsymbol{w_0}}{\partial u_k})
+-diag(\frac{\partial \boldsymbol{\beta}}{\partial u_k}).
 \end{equation}
-где $ \frac{d\boldsymbol{A}}{da} $ - разреженная матрица, $ \frac{d\boldsymbol{p}^n}{da} $ - искомый вектор, который можно найти решив СЛАУ преобразовав уравнение к виду $\textbf{A}\textbf{x}=\textbf{b}$. В результате преобразований получим:
-
-\begin{equation} \label{rp}
-\boldsymbol{A}\frac{d\boldsymbol{p}^n}{da} = \boldsymbol{\beta}\frac{d\boldsymbol{p}^{n-1}}{da} + \lambda\frac{d\boldsymbol{\sigma}}{da}(\boldsymbol{p}^{n-1}-p_{aq}^{n-1})+\lambda\boldsymbol{\sigma}\frac{d\boldsymbol{p}^{n-1}}{da}-\frac{d\boldsymbol{A}}{da}\boldsymbol{p}^n,
-\end{equation}
-
-\begin{equation*} \label{dsig_da}
-\frac{d\boldsymbol{\sigma}}{da} = \boldsymbol{\sigma_0}
-\end{equation*}
-\begin{equation*} \label{dsig_db}
-\frac{d\boldsymbol{\sigma}}{db} = \boldsymbol{e}
-\end{equation*}
-
-\begin{equation} \label{dA_da}
-\frac{d\boldsymbol{A}}{da} = \frac{d\boldsymbol{A_t}}{da}-\frac{d\boldsymbol{w_o}}{da}
-\end{equation}
-
+Каждый элемент матрицы $ \boldsymbol{A_t} $ рассчитывается по формуле:
 \begin{equation} \label{Tij}
 T_{i,j} = \frac{2{\sigma_i}{\sigma_j}}{{\sigma_i} + {\sigma_j}}
 \end{equation}
-
-\begin{equation} \label{dTij_dsigma_i}
-\frac{T_{i,j}}{d\sigma_i} = 2\left(\frac{\sigma_j}{{\sigma_i} + {\sigma_j}}\right)^2
-\end{equation}
-
+Производную проводимости между $ i $-той и $ j $-той ячейками $ T_{ij} $ по управляющим параметрам можно записать следующим образом:
 \begin{equation} \label{dTij_da}
-\frac{T_{i,j}}{da} = \frac{T_{i,j}}{d\sigma_i}\frac{d\sigma_i}{da} + \frac{T_{i,j}}{d\sigma_j}\frac{d\sigma_j}{da}
+\frac{\partial T_{i,j}}{\partial u_k} = \frac{\partial T_{i,j}}{\partial \sigma_i}\frac{\partial \sigma_i}{\partial u_k} + \frac{\partial T_{i,j}}{\partial \sigma_j}\frac{\partial \sigma_j}{\partial u_k}
+\end{equation}
+Множитель вида $ \frac{\partial T_{i,j}}{\partial \sigma_i} $ находится по формуле:
+\begin{equation} \label{dTij_dsigma_i}
+\frac{\partial T_{i,j}}{\partial \sigma_i} = 2\left(\frac{\sigma_j}{{\sigma_i} + {\sigma_j}}\right)^2
 \end{equation}
 
+Массив множителей $ \frac{\partial \sigma_i}{\partial u_k} $ при $ u_k \in [a,b]$ и учётом (\ref{sig}) записывается в виде:
+\begin{equation*} \label{dsig_da}
+\frac{\partial \boldsymbol{\sigma}}{\partial a} = \boldsymbol{\sigma_0},
+\end{equation*}
+\begin{equation*} \label{dsig_db}
+\frac{\partial \boldsymbol{\sigma}}{\partial b} = \boldsymbol{e},
+\end{equation*}
+где $ \boldsymbol{e} $ - массив размера равного количеству ячеек, каждый элемент которого равен 1.
+Элементы матрицы $ diag(\frac{\partial \boldsymbol{w_0}}{\partial u_k}) $ находятся по формуле:
+\begin{equation} \label{dWI}
+\frac{\partial w_i}{\partial u_k} = \frac{\partial w_i}{\partial \sigma_i}\frac{\partial \sigma_i}{\partial u_k} =  \frac{2 \pi}{ln\left(\frac{R_k}{r_w}\right)}\frac{\partial \sigma_i}{\partial u_k}.
+\end{equation} 
+Матрица $ diag(\frac{\partial \boldsymbol{\beta}}{\partial u_k}) $ при $ u_k \in [a,b]$ нулевая. Приведем уравнение (\ref{dFP_du})к виду "$\textbf{A}\textbf{x}=\textbf{b}$" при $u = a,b$:
 
-\begin{equation} \label{dT_da}
-\frac{d\boldsymbol{A}}{da} = \frac{d\boldsymbol{A_t}}{da}-\frac{d\boldsymbol{w_o}}{da}
+\begin{eqnarray} \label{eq_dp_da}
+\boldsymbol{A}\frac{\partial \boldsymbol{p}^n}{\partial a} = \boldsymbol{\beta}\frac{\partial\boldsymbol{p}^{n-1}}{\partial a}
++ \lambda\boldsymbol{\sigma_0} \circ \left(\boldsymbol{p}^{n-1}-p_{aq}^{n-1}\right) +  {} \nonumber\\
+{} +\lambda\boldsymbol{\sigma} \circ \left(\frac{\partial \boldsymbol{p}^{n-1}}{\partial a}-\frac{\partial p_{aq}^{n-1}}{\partial a}\right)
+-\frac{\partial \boldsymbol{A}}{\partial a}\boldsymbol{p}^n,
+\end{eqnarray}
+
+\begin{eqnarray} \label{eq_dp_db}
+\boldsymbol{A}\frac{\partial \boldsymbol{p}^n}{\partial b} = \boldsymbol{\beta}\frac{\partial\boldsymbol{p}^{n-1}}{\partial b} + \lambda(\boldsymbol{p}^{n-1}-p_{aq}^{n-1}) +  {} \nonumber\\
+{} + \lambda\boldsymbol{\sigma} \circ \left(\frac{\partial \boldsymbol{p}^{n-1}}{\partial b}-\frac{\partial p_{aq}^{n-1}}{\partial b}\right)
+-\frac{\partial\boldsymbol{A}}{\partial b}\boldsymbol{p}^n,
+\end{eqnarray}
+
+\begin{equation} \label{eq_dp_dlam}
+\boldsymbol{A}\frac{\partial \boldsymbol{p}^n}{\partial \lambda}
+ = \beta\frac{\partial \boldsymbol{p}^{n-1}}{\partial \lambda} + \sigma \circ \left(\boldsymbol{p}^{n-1}-p_{aq}^{n-1}\right)
+ +\lambda\sigma \circ \left(\frac{\partial \boldsymbol{p}^{n-1}}{\partial \lambda}
+ -\frac{\partial p_{aq}^{n-1}}{\partial \lambda}\right)
 \end{equation}
 
-\begin{equation} \label{eq_dp_da}
-\boldsymbol{A}\frac{d\boldsymbol{p}^n}{da} = \boldsymbol{\beta}\frac{d\boldsymbol{p}^{n-1}}{da} + \lambda\boldsymbol{\sigma_0}(\boldsymbol{p}^{n-1}-p_{aq}^{n-1})+\lambda\boldsymbol{\sigma_0}\frac{d\boldsymbol{p}^{n-1}}{da}-\frac{d\boldsymbol{A}}{da}\boldsymbol{p}^n,
-\end{equation}
-
-\begin{equation} \label{eq_dp_db}
-\boldsymbol{A}\frac{d\boldsymbol{p}^n}{db} = \boldsymbol{\beta}\frac{d\boldsymbol{p}^{n-1}}{db} + \lambda(\boldsymbol{p}^{n-1}-p_{aq}^{n-1})+\lambda\frac{d\boldsymbol{p}^{n-1}}{db}-\frac{d\boldsymbol{A}}{db}\boldsymbol{p}^n,
-\end{equation}
-
-Для нахождения производной по $ \lambda $
-\begin{equation} \label{rp}
-\boldsymbol{A}\frac{d\boldsymbol{p}^n}{d\lambda} = \beta\frac{d\boldsymbol{p}^{n-1}}{d\lambda} + \sigma(\boldsymbol{p}^{n-1}-p_{aq}^{n-1})+\lambda\sigma(\frac{d\boldsymbol{p}^{n-1}}{d\lambda}-\frac{dp_{aq}^{n-1}}{d\lambda})
-\end{equation}
-
-  Таким образом необходимо найти производную пластового давления по коэффициенту $ \gamma $.
+При учётом (\ref{beta_gamma}) запишем уравнение для нахождения производной пластового давления по коэффициенту $ \gamma $.
 \begin{equation} \label{eq_dp_dgamma}
-\boldsymbol{A}\frac{d\boldsymbol{p}^n}{d\gamma} = \beta\frac{d\boldsymbol{p}^{n-1}}{d\gamma} + \lambda\sigma(\frac{d\boldsymbol{p}^{n-1}}{d\gamma}-\frac{dp_{aq}^{n-1}}{d\gamma})
+\boldsymbol{A}\frac{\partial \boldsymbol{p}^n}{\partial \gamma} =
+ \beta\frac{\partial \boldsymbol{p}^{n-1}}{\partial \gamma}
+  + \lambda\sigma \circ \left(\frac{\partial \boldsymbol{p}^{n-1}}{\partial \gamma}
+  -\frac{\partial p_{aq}^{n-1}}{\partial \gamma}\right)
 \end{equation}
 
 Из уравнения \ref{eq_dp_dgamma} видно, что необходимо найти производную давления в аквифере от параметра $ \gamma $. Найдём производные продифференцировав уравнение \ref{aq_num} по управляющим параметрам.
