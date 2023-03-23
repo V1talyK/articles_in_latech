@@ -1,71 +1,53 @@
-\documentclass{article}
-
-\usepackage{amssymb}
-\usepackage{amsfonts}
-\usepackage[tbtags]{amsmath}
-\usepackage{amscd}
-\usepackage{amsthm}			% Продвинутая математика
-\usepackage{mathtext}
-\usepackage{cmap}
-\usepackage[T2A]{fontenc}
-\usepackage[utf8]{inputenc}			% cp1251
-\usepackage[english, russian]{babel}
-%\usepackage{literat}
-\usepackage{pifont}
-\usepackage{bm}
-\usepackage{array}			% Ширина столбиков в массиве
-\usepackage{dcolumn}
-\usepackage{hhline}
-\usepackage{multirow}
-\usepackage{graphicx}
-\usepackage{rotating}
-\usepackage{calc}
-\usepackage{tabularx}
-\usepackage{afterpage}
-\usepackage{ifthen}
-\usepackage{caption2}
-\usepackage{substr}
-\usepackage[mathscr]{eucal}  %% My addition
-\usepackage{mathrsfs}        %% My addition
-\usepackage{hypbmsec}        %% My addition
-\usepackage{latexsym}        %% My addition
-\usepackage{xypic}           %% My addition
-\RequirePackage{soul}
-\RequirePackage{verbatim}    %% My addition
-\RequirePackage{chapterbib}
-\RequirePackage{enumerate}
-
-\usepackage[shortcuts]{extdash}
-\usepackage{ragged2e}
-\usepackage{etoolbox}
-\usepackage{lipsum}
-
-%\usepackage{flafter}
-\usepackage[section,above,below]{placeins}
-
-\usepackage{indentfirst}
-\usepackage[a4paper, top=20mm, left=30mm, right=20mm, bottom=25mm]{geometry}
-
-\title{Исследование влияния объёма исходных данных при решении задачи идентификация поля проницаемости для нефтяного месторождения}
-\author{V.P. Kosyakov}
-
+%%
+%% ****** ljmsamp.tex 13.06.2018 ******
+%%
+\documentclass[
+11pt,%
+tightenlines,%
+twoside,%
+onecolumn,%
+nofloats,%
+nobibnotes,%
+nofootinbib,%
+superscriptaddress,%
+noshowpacs,%
+centertags]%
+{revtex4}
+\usepackage{ljm}
 
 \begin{document}
+	
+	
+	\titlerunning{Short form of the title} % for running heads
+	\authorrunning{V. P. Kosyakov} % for running heads
+	%\authorrunning{First-Author, Second-Author} % for running heads
+	
+	\title{Investigation of the influence of weight coefficients in solving the problem of identification of permeability for an oil field}
+	% Splitting into lines is performed by the command \\
+	% The title is written in accordance with the rules of capitalization.
+	
+	\author{\firstname{V.~P.}~\surname{Kosyakov}}
+	\email[E-mail: ]{lik.24@yandex.ru}
+	\affiliation{Tyumen Branch of Khristianovich Institute of Theoretical and Applied Mechanics SB RAS, Taymirskaya Str. 74, 625026, Tyumen, Russia}
+	
+	
+	\received{March 23, 2023} % The date of receipt to the editor, i.e. December 06, 2017
+	
 	\maketitle
-	\textbf{Abstract}. В процессе моделирования разработки нефтяного месторождения одним из важных шагов является решение обратной задачи, решение которой, как правило, заключается в подборе параметров модели для наилучшей настройки на историю разработки. Для решения обратной задачи используются разнородные исходные данные, степень влияния на результат решения которых определяется их весовыми коэффициентами. Кроме того целью моделирования является не только повторение показателей разработки на историческом периоде, но и получение достоверного прогноза поведения моделируемого объекта в будущем. 
-	В настоящей  работе на примере решения задачи параметрической идентификации поля проницаемости для моделирования разработки нефтяного месторождения проведено исследование влияния выбора весовых коэффициентов на точность настройки модели и её прогнозные характеристики. Показано, что корректный выбор весовых коэффициентов позволяет получить модель с наилучшими прогнозными свойствами. Для оценки точности модели и выбора варианта её адаптации рекомендовано использовать дополнительные метрики отличные от целевой функции.
+	\textbf{Abstract}. In the process of modeling the development of an oil field, one of the important steps is the solution of the inverse problem, the solution of which, as a rule, consists in the selection of model parameters for the best fit to the history of development. To solve the inverse problem, heterogeneous initial data are used, the degree of influence on the result of the solution of which is determined by their weight coefficients. In addition, the purpose of modeling is not only to repeat the development indicators for the historical period, but also to obtain a reliable forecast of the behavior of the modeled object in the future.
+	In this work, using the example of solving the problem of parametric identification of the permeability field for modeling the development of an oil field, a study was made of the influence of the choice of weight coefficients on the accuracy of the model tuning and its predictive characteristics. It is shown that the correct choice of weight coefficients makes it possible to obtain a model with the best predictive properties. To assess the accuracy of the model and select the option of its adaptation, it is recommended to use additional metrics other than the objective function.
 
-\textbf{Keywords}: обратная задача, параметрическая идентификация, моделирование, фильтрация, метрика
+\textbf{Keywords}: inverse problem, parametric identification, modeling, filtering, metric
 
 \section{INTRODUCTION}
-	В настоящее время широкое распространение получило создание цифровых (численных) двойников всевозможных объектов и физических процессов, в основе которых, как правило, лежат математические модели. Для успешного использования подобных моделей на практике необходимым условием является воспроизведение фактического поведения исследуемого объекта. Для удовлетворения этого требования численные модели проходят процедуру настройки (адаптации), которая представляет собой решение обратной задачи с целью подбора некоторых параметров модели, а также начальных и/или граничных условий, если они не известны с достаточной точностью. 
+	At present, the creation of digital (numerical) twins of various objects and physical processes, which, as a rule, are based on mathematical models, has become widespread. For the successful use of such models in practice, a necessary condition is the reproduction of the actual behavior of the object under study. To meet this requirement, numerical models undergo a tuning (adaptation) procedure, which is a solution of an inverse problem in order to select some model parameters, as well as initial and/or boundary conditions, if they are not known with sufficient accuracy. 
 	
-	Применительно к задачам фильтрации, подземной гидродинамики, разработки нефтяных месторождений актуальной задачей является задача восстановления поля проницаемости. Ввиду малого объёма знаний о истинном поле проницаемости породы, данные о котором непосредственно могут быть получены лишь при бурении скважин, значение проницаемости в межскважинном пространстве является оценочным. Значение проницаемости является одним из  важных параметров, характеризующих потенциал и процесс разработки месторождения. Следовательно, задача восстановления или уточнения поля проницаемости является актуальной задачей. При использовании гидродинамической модели и известных фактических значениях основных показателей разработки на историческом периоде (отборы жидкости, нефти, закачка воды, пластовые и забойные давления и т.д.), становится возможным получение решения обратной задачи. Решение заключается в нахождении такого поля проницаемости, при использовании которого расчётные значения показателей удовлетворяют с достаточной точностью фактическим данным.
+	In relation to the problems of filtration, underground hydrodynamics, and the development of oil fields, the problem of restoring the permeability field is an urgent task. Due to the small amount of knowledge about the true field of rock permeability, data on which can be directly obtained only when drilling wells, the value of permeability in the interwell space is estimated. The value of permeability is one of the important parameters characterizing the potential and process of field development. Therefore, the problem of restoring or refining the permeability field is an urgent task. When using a hydrodynamic model and known actual values of the main development indicators for the historical period (liquid, oil extraction, water injection, reservoir and bottomhole pressures, etc.), it becomes possible to obtain a solution to the inverse problem. The solution is to find such a permeability field, when using which the calculated values of the indicators satisfy the actual data with sufficient accuracy.
 
-	В настоящей работе представлено исследование зависимости адаптационных и прогнозных характеристик модели от степени доверия к исходным данным разного вида. На примере задачи параметрической идентификации фильтрационной модели для нефтяного месторождения в двухфазной постановке, показана важность использования всего объёма исходных данных. В качестве прогнозируемого параметры выступает пластовое давление, характеризующее “энергетический” потенциал залежи и расходы воды.
+	This paper presents a study of the dependence of the adaptive and predictive characteristics of the model on the degree of confidence in the initial data of various types. The papers \cite{mus}, \cite{kos} demonstrated an indirect dependence of the forecast accuracy on the accuracy of the model's adjustment to the history. On the example of the problem of parametric identification of a filtration model for an oil field in a two-phase formulation, the importance of using the entire volume of initial data is shown. The predicted parameter is reservoir pressure, which characterizes the “energy” potential of the deposit and water flow.
 
 \section{Mathematical Models}
-Для решения поставленной задачи в качестве фильтрационной модели использовалась двумерная математическая модель фильтрации несжимаемой "цветной" жидкости \cite{bas}. Использование модели цветной жидкости предполагает: одинаковую вязкость жидкостей равную $\mu$, прямо пропорциональную зависимость относительной фазовой проницаемости от насыщенности соответствующей фазой, отсутствие влияния насыщенности на давление, капиллярные силы не учитываются, давление фаз принимается равным. Таким образом уравнения фильтрации можно записать следующим образом: 
+To solve this problem, a two-dimensional mathematical model of filtration of an incompressible "colored" liquid \cite{bas} was used as a filtration model. The use of a colored liquid model assumes: the same viscosity of liquids equal to $\mu$, a directly proportional dependence of the relative phase permeability on the saturation of the corresponding phase, the absence of saturation effect on pressure, capillary forces are not taken into account, the pressure of the phases is taken equal. Thus, the filtration equations can be written as follows:
 \begin{equation} \label{fil}
 \triangledown\frac{k}{\mu}\triangledown P = \delta_{l}(x,y),
 \end{equation}
@@ -74,15 +56,15 @@
 \end{equation}
 \begin{equation} \label{bc}
 \delta_{i}(x,y)  = \left\{\begin{array}{crl}
-0, \;при\;(x,y) \notin\ \Gamma_{in}\cup\Gamma_{out}\\
-q_{i\:k}, \;при\;(x,y) \in \Gamma_{in}\\
-q_{i\:aq}, \;при\;(x,y) \in \Gamma_{out}
+0, \;\mbox{if}\;(x,y) \notin\ \Gamma_{in}\cup\Gamma_{out}\\
+q_{i\:k}, \;\mbox{if}\;(x,y) \in \Gamma_{in}\\
+q_{i\:aq}, \;\mbox{if}\;(x,y) \in \Gamma_{out}
 \end{array}\right.,
 \end{equation}
 \begin{equation*}
 	i = l,w.
 \end{equation*}
-Замыкающие соотношения:
+Closing ratios:
 \begin{equation*}
 	S_w + S_o = 1,
 \end{equation*}
@@ -90,53 +72,53 @@ q_{i\:aq}, \;при\;(x,y) \in \Gamma_{out}
 	k_w = S_w, \quad k_o = 1 - S_w,
 \end{equation}
 \begin{equation*}
-	P = P_0,\quad S_w = S_{w0}\mbox{,\quad при $t=0$},
+	P = P_0,\quad S_w = S_{w0}\mbox{,\quad \mbox{if} $t=0$},
 \end{equation*}
-где $k$ - проницаемость, $P$ - пластовое давление, $\phi$ - пористость, $S$ - насыщенность, нижний индекс $i$ обозначает $l$ - жидкость (вода и нефть), $w$ - вода, или  $k_{r}$ - относительная фазовая проницаемость, $q_k$ - расход флюида в $k$-той скважине, $\Gamma_{in}$ - множество координат источников/стоков (скважин), $\Gamma_{out}$ - внешняя граница, $P_0$ - пластовое давление и $S_{w0}$ - водонасыщенность в начальный момент времени $t=0$, $q_{aq}$ - удельный расход флюида через внешнюю границу, который находится по формуле:
+where $k$ - permeability, $P$ - reservoir pressure, $\phi$ - porosity, $S$ - saturation, subscript $i$ denotes $l$ - liquid (water and oil), $w$ - water, or $k_{r}$ - relative phase permeability, $q_k$ - fluid flow rate in $k$-th well, $\Gamma_{in}$ - set of coordinates of sources/sinks (wells), $\Gamma_{out}$ - outer boundary, $P_0$ - reservoir pressure and $S_{w0}$ - water saturation at the initial time $t=0$, $q_{aq}$ - specific fluid flow through the outer boundary, which is found by the formula:
 
 \begin{equation} \label{qaq}
 q_{i\:aq} = \lambda \frac{kk_{ri}}{\mu}(P|_{\Gamma_{out}}-P_c),
 \end{equation}
-где $P_{c}$ - на контуре питания ($P_c = P_0$), $\lambda$ - коэффициент продуктивности аквифера. Предполагается, что водонасыщенность контура питания $S_{c\:w} = 1$.
-Решение обратной задачи заключается в поиске поля проницаемости $k = k(x,y)$ при котором расчётные значения пластового давления и расхода воды на скважинах будут удовлетворительно совпадать с исходными значениями соответствующих параметров. Обратная задача решается в оптимизационной постановке, которая заключается в минимизации целевой функции $J$. Целевую функцию можно записать в виде суммы слагаемых, каждое из которых является произведением функции характеризующей отклонение расчётных значений от контрольных и весового коэффициента для соответствующего типа переменной. В качестве меры отклонения выбрана средняя квадратичная ошибка "Mean Squared Error" (MSE). 
+where $P_{c}$ - on the supply circuit ($P_c = P_0$), $\lambda$ - aquifer productivity factor. It is assumed that the water saturation of the supply circuit is $S_{c\:w} = 1$.
+The solution of the inverse problem is to find the permeability field $k = k(x,y)$ at which the calculated values of reservoir pressure and water flow in wells will satisfactorily coincide with the initial values of the corresponding parameters. The inverse problem is solved in an optimization setting, which consists in minimizing the objective function $J$. The target function can be written as a sum of terms, each of which is the product of a function characterizing the deviation of the calculated values from the control values and a weighting coefficient for the corresponding type of variable. The mean square error (MSE) was chosen as a deviation measure.
 \begin{equation} \label{mse}
 	J=w_p\frac{1}{N}\sum_{i=1}^N{\left(p_c^i-p_f^i\right)^2}+w_{q_w}\frac{1}{M}\sum_{i=1}^M{\left(q_{w\:c}^i-q_{w\:f}^i\right)^2}
 \end{equation}
-где $p_c^i$ -расчетное значение пластового давления, $p_f^i$ - фактическое значение, $i$ - номер замера, $N$ - количество замеров пластового давления, $q_{w\:c}^i$ и $q_{w\:f}^i$ - расчетное и фактическое значение расхода воды на скважинах соответственно, нижний индекс $f$ означает фактические значения (fact), а $c$ - расчётные (calculated), $M$ - количество замеров расхода воды на скважине, $w_p$ и $w_{q_w}$- весовые коэффициенты учитывающие степень влияния различных параметров (размерность, качество данных и т.д.). Аргументами слагаемого целевой функции отвечающего за давление выступают фактические (замеренные) и расчётные значения пластового давления в точках расположения скважин в заданные моменты времени.  
- Расчётные значения в свою очередь зависят от параметров модели $u$. Решение находится при использовании градиентного оптимизационного алгоритма и заключается в определении набора параметров модели соответствующих минимуму $J$ и удовлетворяющих ограничениям в виде неравенств:
+where $p_c^i$ is the calculated value of reservoir pressure, $p_f^i$ is the actual value, $i$ is the measurement number, $N$ is the number of reservoir pressure measurements, $q_{w\:c}^i$ and $ q_{w\:f}^i$ - calculated and actual value of water flow in wells, respectively, the subscript $f$ means actual values (fact), and $c$ - calculated (calculated), $M$ - number of flow measurements well water, $w_p$ and $w_{q_w}$ are weight coefficients taking into account the degree of influence of various parameters (dimension, data quality, etc.). The arguments of the term of the objective function responsible for pressure are the actual (measured) and calculated values of the formation pressure at the well locations at the given time points.
+ The calculated values, in turn, depend on the model parameters $u$. The solution is found using the gradient optimization algorithm and consists in determining the set of model parameters corresponding to the minimum $J$ and satisfying the constraints in the form of inequalities:
 \begin{equation*}
 u_{min}\leq\ \boldsymbol{u}\leq u_{max},
 \end{equation*}
-$u_{min}$ и $u_{max}$ - минимальный и максимальные значения для каждого параметра.
+$u_{min}$ и $u_{max}$ - minimum and maximum values for each parameter.
 
-При использовании градиентного метода оптимизации, необходимо найти компоненты градиента целевой функции, которые можно записать в следующем виде:
+When using the gradient optimization method, it is necessary to find the components of the objective function gradient, which can be written in the following form:
 \begin{equation}
 \frac{\partial J}{\partial u_k} = 2w_p\frac{1}{N}\sum_{i=1}^N ({p_c^i-p_f^i})\frac{\partial p_c^i}{\partial u_k}+2w_{q_w}\frac{1}{M}\sum_{i=1}^M{\left(q_{w\:c}^i-q_{w\:f}^i\right)}\frac{\partial q_{w\:c}^i}{\partial u_k}.
 \end{equation}
-Для решения оптимизационной задачи необходимо чтобы каждая компонента градиента целевой функции стремилась к 0, что можно записать как:
+To solve the optimization problem, it is necessary that each component of the objective function gradient tends to 0, which can be written as:
 \begin{equation} \label{rp}
 	 \frac{\partial J}{\partial u_k} \rightarrow 0
 \end{equation}
-Решение обратной задачи (\ref{rp}) находится численно итерационным методом. На каждой итерации численно решается прямая задача (\ref{fil}-\ref{bc}) и осуществляется расчёт производных целевой функции по настраиваемым параметрам модели \cite{opt}. Численное решение находилось методом контрольного объёма  для двумерной прямоугольной разностной сетки при использовании IMPES метода.
+The solution of the inverse problem (\ref{rp}) is found numerically by the iterative method. At each iteration, the direct problem (\ref{fil}-\ref{bc}) is numerically solved and the derivatives of the objective function are calculated according to the adjustable parameters of the \cite{opt} model. The numerical solution was found by the control volume method for a two-dimensional rectangular difference grid using the IMPES method \cite{azi}.
 
-Для расчёта слагаемого компоненты градиента целевой функции, отвечающего за отклонение расходов фаз (воды) необходимо его преобразовать к виду, где множитель $\frac{\partial q_{w\:c}^i}{\partial u_k}$ будет выражен через производную пластового давления от параметра $u_k$. Для модели цветных жидкостей расход воды можно выразить через расход жидкости и относительную фазовую проницаемость как:
+To calculate the term of the gradient component of the objective function, which is responsible for the deviation of the flow rates of phases (water), it is necessary to convert it to the form, where the factor $\frac{\partial q_{w\:c}^i}{\partial u_k}$ will be expressed in terms of the derivative formation pressure on the parameter $u_k$. For a model of colored liquids, the water flow rate can be expressed in terms of the liquid flow rate and the relative phase permeability as:
  \begin{equation*}
  	q_{w\:c}^i = k_{w}^i \: q_{w\:c}^i.
  \end{equation*}
-С учётом (\ref{bc}, \ref{kr}) производная относительной фазовой проницаемости воды по водонасыщенности:
+Taking into account (\ref{bc}, \ref{kr}), the derivative of the relative phase permeability of water with respect to water saturation:
  \begin{equation*}
 	\frac{\partial k_{w}^i}{\partial s_w^i} = 1,
 \end{equation*}
-где $s_w^i$ - водонасыщенность в прискважинной области.
-Тогда множитель $\frac{\partial q_{w\:c}^i}{\partial u_k}$ записывается как:
+where $s_w^i$ - water saturation in the near-well area.
+Then the factor $\frac{\partial q_{w\:c}^i}{\partial u_k}$ is written as:
 \begin{equation} \label{dq_du}
 \frac{\partial q_{w\:c}^i}{\partial u_k} = k_{w}^i \frac{\partial q_{l\:c}^i}{\partial u_k} + q_{l\:c}^i \frac{\partial k_{w}^i}{\partial u_k} = q_{l\:c}^i \frac{\partial k_{w}^i}{\partial s_w^i} \frac{\partial s_w^i}{\partial p_c^i}\frac{\partial p_c^i}{\partial u_k} =  q_{l\:c}^i  \frac{\partial s_w^i}{\partial p_c^i}\frac{\partial p_c^i}{\partial u_k}.
 \end{equation}
-Так как для нашей модели на скважинах задаются расходы жидкости, то первое слагаемое в \ref{dq_du} равняется 0, так как настраиваемый параметр (управление) не $u_k$ не может влиять на значение расходов жидкости. В случает решения задачи при заданных забойных давлениях это слагаемое необходимо учитывать.
+Since fluid flow rates are set for our model on wells, the first term in \ref{dq_du} is equal to 0, since the adjustable parameter (control) not $u_k$ cannot affect the value of fluid flow rates. In the case of solving the problem at given bottomhole pressures, this term must be taken into account.
 
-Основная вычислительная сложность заключается в вычислении значений $\frac{\partial p_c^i}{\partial u_k}$ и $\frac{\partial s_w^i}{\partial p_с^i}$. Их расчёт выполняется численно при использовании уравнений (\ref{fil} - \ref{fil2}) и на основе подхода \cite{opt}.
+The main computational complexity lies in calculating the values of $\frac{\partial p_c^i}{\partial u_k}$ and $\frac{\partial s_w^i}{\partial p_c^i}$. Their calculation is performed numerically using the equations (\ref{fil} - \ref{fil2}) and based on the \cite{opt} approach. The used algorithm for calculating derivatives is possible for use with other permeability field reconstruction techniques \cite{leg}.
 
-Целевая функция, используемая при решении обратной задачи ({\ref{mse}}), не всегда удобна при субъективной оценке точности модели. Оценка точности настройки модели, в качестве дополнительной метрики, производилась при помощи показателя - средняя абсолютная ошибка в процентах "Mean Absolute Percentage Error" (MAPE). Для показателей "пластовое давление" и  "расход воды" эти метрики можно представить следующим образом:
+The objective function used in solving the inverse problem ({\ref{mse}}) is not always convenient for a subjective assessment of the accuracy of the model. The assessment of the model tuning accuracy, as an additional metric, was carried out using the indicator - the average absolute error in percent "Mean Absolute Percentage Error" (MAPE). For the "reservoir pressure" and "water flow" indicators, these metrics can be represented as follows:
 
 \begin{equation} \label{mape_p}
  	J_{mape(p)}=\frac{1}{N}\sum_{i=1}^N{\left|\frac{p_c^i-p_f^i}{p_f^i}\right|},
@@ -144,59 +126,59 @@ $u_{min}$ и $u_{max}$ - минимальный и максимальные зн
 \begin{equation} \label{mape_qo}
  	J_{mape(q_w)}=\frac{1}{M}\sum_{i=1}^M{\left|\frac{q_{w\:c}^i-q_{w\:f}^i}{q_{w\:f}^i}\right|}.
 \end{equation}
-Данная метрика позволяет наглядно дать оценку качеству воспроизведения моделью фактических значений пластового давления и расхода воды на скважинах.
+This metric makes it possible to visually evaluate the quality of reproduction by the model of the actual values of reservoir pressure and water flow in wells.
 \section{Сalculation Results}
-На примере решения обратной задачи поиска поля проницаемости для нефтяного месторождения было выполнено исследование зависимости качества адаптации и прогноза от соотношения весовых коэффициентов отражающих влияние исходных данных. Для выполнения исследования при помощи синтетической гидродинамической модели был получен необходимый набор данных (показателей разработки): пластовые давления и расходы воды на скважинах. Для синтетической модели были заданы размеры расчётной области, расположение скважин начальные и граничные условия, в том числе режимы работы скважин (расходы жидкости на скважинах), а также исходное поле проницаемости. Полученные расчётные данные выступали в качестве "фактических" значений, которые использовались при решении обратной задачи. Схема расположения скважин представлена на рисунке \ref{fig:map}, размеры указанны в метрах. 
+Using the example of solving the inverse problem of searching for a permeability field for an oil field, a study was made of the dependence of the quality of adaptation and forecast on the ratio of weight coefficients reflecting the influence of the initial data. To perform the study, using a synthetic hydrodynamic model, the necessary set of data (development indicators) was obtained: reservoir pressures and water flow rates in wells. For the synthetic model, the dimensions of the computational domain, the location of the wells, the initial and boundary conditions, including the operating modes of the wells (fluid flow rates in the wells), as well as the initial permeability field, were specified. The calculated data obtained acted as "actual" values that were used in solving the inverse problem. The layout of the wells is shown in the figure \ref{fig:map}, the dimensions are given in meters.
 \begin{figure}
 	\center{\includegraphics[height=12pc]{fig1.png}}
-    \caption{Схематическое представление расчётной области.}
+    \caption{Schematic representation of the computational domain.}
 	\label{fig:map}
 \end{figure}
 
-Месторождение разрабатывается при помощи 8 добывающих и 1 нагнетательной скважины. На скважинах задавался расход жидкости (дебит на добывающих и приёмистость на нагнетательных), Расход жидкости на каждой скважине задавался в виде зашумлённого фиксированного значения, амплитуда шума составляла до $50\%$ от среднего значения. Шаг по времени составлял 1 месяц. Период разработки - 30 лет, контур питания был “подключён” по периметру расчетной области. Для решения задачи параметрической идентификации период разработки был разбит на 2 интервала: интервал адаптации, на котором настраивались параметры модели, и интервал валидации, на котором оценивались прогнозные характеристики адаптированной модели. Периоды составляли 20, 10 лет соответственно. Объём исходных данных, который использовался при настройке модели на интервале адаптации составляет 63 значений давления случайно выбранных из всего объёма исходных значений давлений на скважинах, что составляет примерно $2,5\%$ от доступного числа. Для интервала адаптации использовалось 1920 значения расхода воды на добывающих скважинах. На интервале валидации объём исходных данных составлял 37 и 960 значения для давления и расхода соответственно. 
+The field is being developed with the help of 8 production and 1 injection wells. At the wells, the fluid flow rate was set (flow rate for producing and injection capacity for injection). The fluid flow rate for each well was set as a noisy fixed value, the noise amplitude was up to $50\%$ of the average value. The time step was 1 month. The development period is 30 years, the power circuit was “connected” along the perimeter of the computational area. To solve the problem of parametric identification, the development period was divided into 2 intervals: the adaptation interval, at which the model parameters were adjusted, and the validation interval, at which the predictive characteristics of the adapted model were evaluated. The periods were 20 and 10 years, respectively. The amount of initial data that was used when setting up the model on the adaptation interval is 63 pressure values randomly selected from the entire volume of initial well pressure values, which is approximately $2.5\%$ of the available number. For the adaptation interval, 1920 values of water flow in production wells were used. At the validation interval, the amount of initial data was 37 and 960 values for pressure and flow, respectively.
 
-Прямая и обратная задача решались численно методом контрольного объёма, разностная сетка имела 441 расчётный узел, каждый узел имеет своё значение проницаемости, которое является настраиваемым параметром.
+The direct and inverse problems were solved numerically using the control volume method, the difference grid had 441 calculated nodes, each node has its own permeability value, which is a configurable parameter.
 
-Задача адаптации решается для 11 вариантов наборов весовых коэффициентов $(w_p, w_{q_w})$ используемых в целевой функции {\ref{mse}}. Значения весовых коэффициентов в наборах задавалось таким образом чтобы выполнялось условие $w_p = 1 - w_{q_w}$, где $w_{q_w}$ изменялось от 0 до 1 с шагом 0,1. Путём изменения весовых коэффициентов менялась чувствительность целевой функции и её градиента к разным видам исходных данных. Кроме того, при значении одного из весовых коэффициентов равным 0, модель настраивается только на один из двух видов исходных данных. 
+The adaptation problem is solved for 11 variants of sets of weight coefficients $(w_p, w_{q_w})$ used in the objective function {\ref{mse}}. The values of the weight coefficients in the sets were set in such a way that the condition $w_p = 1 - w_{q_w}$ was fulfilled, where $w_{q_w}$ changed from 0 to 1 with a step of 0.1. By changing the weight coefficients, the sensitivity of the objective function and its gradient to different types of input data changed. In addition, if one of the weight coefficients is equal to 0, the model is tuned to only one of the two types of input data.
 
-Методология проведения исследования: задаётся поле проницаемости, задаются режимы работы скважин (расходы жидкостей), решается прямая задача, расчётные значения пластового давления и расхода нефти сохраняются и далее выступают в качестве фактических значений. Далее вносится возмущение в исходное поле проницаемости, которое выступает в качестве начального приближения при решении обратной задачи. Далее решается обратная задача с целью восстановить такое поле проницаемости что-бы максимально точно воспроизвести фактические значения пластового давления и расхода воды на скважинах с учётом заданных весовых коэффициентов. Далее адаптированная модель выполняет прогнозные расчёты, период прогноза совпадает с интервалом валидации, на котором оценивается способность модели воспроизвести интересующие нас показатели, исходные значения которых не участвовали в процессе адаптации. 
+Research methodology: the permeability field is set, the well operation modes (fluid flow rates) are set, the direct problem is solved, the calculated values of reservoir pressure and oil flow rate are saved and then act as actual values. Next, a perturbation is introduced into the initial permeability field, which acts as an initial approximation in solving the inverse problem. Next, the inverse problem is solved in order to restore such a permeability field in order to reproduce as accurately as possible the actual values of reservoir pressure and water flow in wells, taking into account the given weight coefficients. Further, the adapted model performs predictive calculations, the forecast period coincides with the validation interval, which evaluates the ability of the model to reproduce the indicators of interest to us, the initial values of which did not participate in the adaptation process.
 
-На рисунке \ref{fig:press} представлены исходные значения пластового давления для скважин в разные моменты времени, вертикальня пунктирная линия на этом графике и на последующих разделяет интервалы адаптации и валидации. На рисунке \ref{fig:qlic} представлена динамика суммарного расхода жидкости и воды для добывающих скважин, пиктограммами показаны исходные значения, линиями - осреднения динамика соответствующих показателей.
+The figure \ref{fig:press} shows the initial values of reservoir pressure for wells at different points in time, the vertical dotted line on this graph and on the following ones separates the intervals of adaptation and validation. The figure \ref{fig:qlic} shows the dynamics of the total flow rate of fluid and water for production wells, the pictograms show the initial values, the lines show the averaging of the dynamics of the corresponding indicators.
 \begin{figure} 
     \begin{minipage}[h]{0.48\linewidth}
       \center{\includegraphics[height=0.60\linewidth]{fig2.png}}
-      \caption{Значения пластового давления вблизи скважин, используемые для оценки точности настройки модели для интервалов адаптации и валидации.}
+      \caption{Reservoir pressure values near wells used to evaluate the accuracy of model tuning for history matching and validation intervals.}
       \label{fig:press}
     \end{minipage} \hfill
     \begin{minipage}[h]{0.48\linewidth}
       \center{\includegraphics[height=0.60\linewidth]{fig2_2.png}}
-      \caption{Значения суммарных расходов жидкости и воды, используемые для оценки точности настройки модели для этапов адаптации и валидации.}
+      \caption{The values of the total flow rates of liquid and water for history matching and validation intervals.}
       \label{fig:qlic}
     \end{minipage} 
 \end{figure}
-Из рисунков видно, что средние значения пластового давления и расхода жидкости постоянны на протяжении всего периода моделирования, расход воды постепенно возрастает по мере вытеснения нефти водой и прихода фронта скачка  водонасыщенности к добывающим скважинам.
-
-Обратная задача была решена для 11 вариантов наборов весовых коэффициентов, в которых постепенно увеличивалось влияние данных давления и уменьшалось влияние расхода воды. На рисунке \ref{fig:wp} представлены значения метрик MAPE и целевой функции $J$ для разных наборов весовых коэффициентов. Метрика MAPE рассчитана для показателей давления, расхода воды на добывающих скважинах для интервалов адаптации и валидации. Кроме того на рисунке представлена метрика MAPE для проницаемости, характеризующая отклонение восстановленных значений от фактических.
+It can be seen from the figures that the average values of the reservoir pressure and fluid flow rate are constant throughout the entire simulation period, the water flow rate gradually increases as the oil is displaced by water and the front of the water saturation jump arrives at the production wells.
+The inverse problem was solved for 11 sets of weight coefficients, in which the influence of pressure data gradually increased and the influence of water flow decreased. The figure \ref{fig:wp} shows the values of the MAPE metrics and the objective function $J$ for different sets of weight coefficients. The MAPE metric is calculated for pressure indicators, water flow rates at production wells for adaptation and validation intervals. In addition, the figure shows the MAPE metric for permeability, which characterizes the deviation of the restored values from the actual ones.
 
 \begin{figure}
 	\center{\includegraphics[height=12pc]{fig4.png}}
-	\caption{Значения метрики MAPE и целевой функции J для 11 наборов весовых коэффициентов для интервалов адаптации (adp) и валидации (val)}
+	\caption{MAPE metric and objective function J values for 11 sets of weight coefficients for adaptation intervals (adp) and validation intervals (val).}
 	\label{fig:wp}
 \end{figure}
 
-Из графика видно, что в целом наблюдается ожидаемая обратно пропорциональная зависимость значения метрики и соответствующего весового коэффициента. Также наблюдается похожее поведение соответствующих метрик для интервалов адаптации и валидации. Однако, чувствительность метрики, характеризующей прогнозные свойства для показателя "расхода воды", выше чем метрика этого же показателя на интервале адаптации, что свидетельствует о важности выбора того или иного варианта адаптации с точки зрения прогнозных свойств. Из рисунка \ref{fig:wp} также видно, что характер изменения целевой функции $J$ отличается от характера изменения метрики MAPE. Исходя из графика можно сделать вывод о том, что при изменении весового коэффициента $w_p$ в интервале от 0 до 0,3 модели наиболее тяжело удовлетворить исходным данным. Так как основной целью моделирования является получение достоверного прогноза, а так же с учётом характера зависимости метрик и их абсолютных значений от весовых коэффициентов рекомендуется выбрать вариант адаптации модели при значении весового коэффициента $w_p$ = 0.1. Также следует ответить, что ввиду особенности решения обратной задачи ни одно из решений не воспроизвело исходное поле проницаемости, отклонение составляло более 50\%, тем не менее прогнозные характеристики этих моделей являются удовлетворительными, как для пластового давления, так и для расхода воды. На практике мы не знаем настоящее поле проницаемости, и полученное для практических задач решение является приемлемым если обладает удовлетворительной настройкой на историю и хорошими прогнозными свойствами. 
+It can be seen from the graph that, in general, the expected inversely proportional dependence of the metric value and the corresponding weighting coefficient is observed. Similar behavior of the corresponding metrics for adaptation and validation intervals is also observed. However, the sensitivity of the metric characterizing the predictive properties for the "water flow" indicator is higher than the metric of the same indicator on the adaptation interval, which indicates the importance of choosing one or another adaptation option in terms of predictive properties. Figure \ref{fig:wp} also shows that the nature of the change in the objective function $J$ differs from the nature of the change in the MAPE metric. Based on the graph, we can conclude that when the weight coefficient $w_p$ changes in the range from 0 to 0.3, it is most difficult for the model to satisfy the initial data. Since the main purpose of modeling is to obtain a reliable forecast, and also taking into account the nature of the dependence of metrics and their absolute values on weight coefficients, it is recommended to choose the model adaptation option with the value of the weight coefficient $w_p$ = 0.1. It should also be answered that, due to the peculiarity of the solution of the inverse problem, none of the solutions reproduced the original permeability field, the deviation was more than 50\%, nevertheless, the predictive characteristics of these models are satisfactory, both for reservoir pressure and for water flow. In practice, we do not know the real permeability field, and the solution obtained for practical problems is acceptable if it has a satisfactory history setting and good predictive properties.
 
-Для выбранного варианта адаптации и для предельных вариантов ($w_p = 0$ и $w_p = 1$) сравним поведение дополнительного интегрального показателя - средней обводнённости на интервалах адаптации и валидации. Средняя обводнённость в каждый момент времени рассчитывается как $wtc = \frac{\sum{q_w^i}}{\sum{q_l^i}}$. Средняя обводнённость добываемой жидкости представлена на рисунке \ref{fig:wtс}. Пиктограммами на рисунке \ref{fig:wtс} нанесены значения обводнённости на каждый месяц, линиями усреднённые значения для четырёх вариантов: исходный вариант и 3 варианта адаптированной модели с весовым коэффициентом $w_p$ равными 0, 0.1 и 1. 
+For the selected adaptation option and for the limiting options ($w_p = 0$ and $w_p = 1$), let's compare the behavior of an additional integral indicator - the average water cut at the intervals of adaptation and validation. The average water cut at each point in time is calculated as $wtc = \frac{\sum{q_w^i}}{\sum{q_l^i}}$. The average water cut of the produced liquid is shown in the figure \ref{fig:wtc}. Pictograms in the figure \ref{fig:wtc} show water cut values for each month, lines show averaged values for four options: the original option and 3 options of the adapted model with the weight coefficient $w_p$ equal to 0, 0.1 and 1.
+
 \begin{figure}
 	\center{\includegraphics[height=12pc]{fig5.png}}
-	\caption{Динамика обводнённости добываемой жидкости: фактические значения и для 3х вариантов адаптации модели.}
+	\caption{Produced liquid water cut dynamics: actual values and for 3 variants of model adaptation.}
 	\label{fig:wtс}
 \end{figure}
-Из рисунка видно, что вариант адаптации при учёте только пластового давления $(w_p=1)$ заметно отличается исходного варианта как на этапе адаптации, так и на интервале валидации. Вариант адаптации, учитывающий только расходы воды $(w_p=0)$, в меньшей степени отличается от исходного варианта, это объясняется тем, что расход фаз на скважинах зависит как непосредственно от пластового давления, так и от структуры фильтрационных потоков в межскважинном пространстве, которая в свою очередь зависит от пластового давления. Это также видно из уравнения \ref{dq_du}, где производная расхода воды от проницаемости зависит от производной давления от проницаемости. С точки зрения прогнозирования наилучшим является вариант адаптации, который комплексно учитывает давление и расход воды, пониженный весовой коэффициент $(w_p=1)$ объясняется тем, что зависимость от пластового давления, как было сказано ранее, входит в слагаемое целевой функции отвечающее за расход воды и косвенно учитывается. Тем не менее наличие слагаемого отвечающее за пластовое давление имеет значение при безводном периоде работы, когда фронт скачка водонасыщенности ещё не дошёл до добывающих скважин. Таким образом использование в качестве целевой функции суммы позволяет более полно использовать всю имеющуюся информацию на протяжении всего периода моделирования. 
+It can be seen from the figure that the adaptation option, taking into account only reservoir pressure $(w_p=1)$, differs markedly from the original option both at the stage of adaptation and at the validation interval. The adaptation option, which takes into account only water flow rates $(w_p=0)$, differs to a lesser extent from the original option, this is due to the fact that the flow rate of phases in wells depends both directly on the formation pressure and on the structure of filtration flows in the interwell space, which in turn depends on reservoir pressure. This can also be seen from the \ref{dq_du} equation, where the derivative of water flow from permeability depends on the derivative of pressure from permeability. From the point of view of forecasting, the best adaptation option is that which takes into account pressure and water flow in a complex way, the reduced weighting coefficient $(w_p=1)$ is explained by the fact that the dependence on reservoir pressure, as mentioned earlier, is included in the term of the objective function responsible for water flow and is indirectly taken into account. Nevertheless, the presence of the term responsible for reservoir pressure is important during the dry period of operation, when the front of the water saturation jump has not yet reached the production wells. Thus, the use of the sum as the objective function allows more complete use of all available information throughout the entire modeling period.
 
 \section{CONCLUSIONS}
 
-В результате исследования было показано, что точность решения обратной задачи зависит от выбора весовых коэффициентов, характеризующих степень влияния на настройку определённого вида данных. Использование комбинации исходных данных позволяет повысить степень регуляризации задачи. Точность модели для периодов адаптации и валидации зависит от пропорций выбранных весовых коэффициентов. Зависимость точности настройки и прогнозирования для отдельного показатель не является линейной от соответствующего ему весового коэффициента. Зависимость характеризуется наличием минимумов и максимумов, что свидетельствует о том, что степень учёта разных показателей влияют на процесс настройки и могут способствовать нахождению наиболее точного решения. Ввиду особенностей методики решения обратных задач в оптимизационной постановке, которая заключается минимизации одной функции включающей в себя разнородные данные целесообразным является анализ других метрик, позволяющих оценить точность настройки и прогнозирования с другой стороны. При условии наличия набора адаптированных моделей сторонние метрики позволят выбрать наиболее подходящую модель с точки зрения предъявляемый к ней требований.
+As a result of the study, it was shown that the accuracy of solving the inverse problem depends on the choice of weight coefficients that characterize the degree of influence on the setting of a certain type of data. The use of a combination of initial data makes it possible to increase the degree of regularization of the problem. The accuracy of the model for the adaptation and validation periods depends on the proportions of the weights chosen. The dependence of the accuracy of tuning and forecasting for an individual indicator is not linear on the corresponding weight coefficient. The dependence is characterized by the presence of minima and maxima, which indicates that the degree of consideration of different indicators affect the tuning process and can help to find the most accurate solution. In view of the peculiarities of the methodology for solving inverse problems in the optimization formulation, which consists in minimizing one function that includes heterogeneous data, it is advisable to analyze other metrics that allow us to evaluate the accuracy of tuning and forecasting on the other hand. Given the availability of a set of adapted models, third-party metrics will allow you to choose the most appropriate model in terms of the requirements for it.
 
 
 \section{FUNDING}
@@ -206,17 +188,21 @@ The research was carried out within the state assignment of Ministry of Science 
 % The Bibliography
 %
 \begin{thebibliography}{99}
+	
 \bibitem{mus} E.N.Musakaev, S.P.Rodionov, D.Y.Legostaev, V.P.Kosyakov,  «Parameter identification for sector filtration model of an oil reservoir with complex structure» // AIP Conference Proceedings 2125,030113 2019;
 
-\bibitem{kos} V.P.Kosyakov, D.Y.Legostaev,  «Computational technology for solution of the reverse problem of filtration theory for oil fields with an aquifer» // AIP Conference Proceedings 2125,030112 2019;
+\bibitem{kos} V. P. Kosyakov. "Structural and Parametric Identification of an Aquifer Model for an Oil Reservoir". Lobachevskii J Math. 2020. V. 41, P. 1242–1247.
 
-\bibitem{bas} К.С.Басниев, Н.М.Дмитриев, Р.Д.Каневская, В.М.Максимов. Подземная гидромеханика.  М.-Ижевск: Институт компьютерных исследований, 2006. 
+\bibitem{bas} K. S. Basniev, N. M. Dmitriev, R. D. Kanevskaya, V. M. Maksimov. \textit{Underground hydromechanics}. M.-Izhevsk: Institute for Computer Research, 2006. [in Russian]
 
-\bibitem{dake} L.P.Dake, Fundamentals of Reservoir Engineering (Elsevier, Amsterdam, 1978).
-
-\bibitem{fet} M.J.Fetkovich. A Simplifi ed approach to water infl ux calculations – Finite aquifer systems. J. Pet. Tech. July 1971, vol. 23, is. 7, pp. 814–828.
+\bibitem{azi} H. Aziz, E. Settari. \textit{Mathematical modeling of reservoir systems}.  M.-Izhevsk: Institute for Computer Research, 2004. [in Russian]
 
 \bibitem{opt} V.P.Kosyakov, S.P.Rodionov "Optimal control of wells on the basis of two-phase filtration equations". Proceedings of MIPT. 2016. V. 8, N 3. P. 79–90.
+
+\bibitem{leg} V. P. Kosyakov,  D. Yu. Legostaev.“Using elements of machine learning to
+solve the inverse problem of reconstructing the hydraulic conductivity feld for a fltration
+problem”. Tyumen State University Herald. Physical and Mathematical Modeling. Oil, Gas,
+Energy, V. 8, N 2 (30), P. 129-149.
 
 
 \end{thebibliography}
