@@ -62,7 +62,7 @@
 	
 	Применительно к задачам фильтрации, подземной гидродинамики, разработки нефтяных месторождений актуальной задачей является задача восстановления поля проницаемости. Ввиду малого объёма знаний о истинном поле проницаемости породы, данные о котором непосредственно могут быть получены лишь при бурении скважин, значение проницаемости в межскважинном пространстве является оценочным. Значение проницаемости является одним из  важных параметров, характеризующих потенциал и процесс разработки месторождения. Следовательно, задача восстановления или уточнения поля проницаемости является актуальной задачей. При использовании гидродинамической модели и известных фактических значениях основных показателей разработки на историческом периоде (отборы жидкости, нефти, закачка воды, пластовые и забойные давления и т.д.), становится возможным получение решения обратной задачи. Решение заключается в нахождении такого поля проницаемости, при использовании которого расчётные значения показателей удовлетворяют с достаточной точностью фактическим данным.
 
-	В настоящей работе представлено исследование зависимости адаптационных и прогнозных характеристик модели от степени доверия к исходным данным разного вида. В работах \cite{mus}, \cite{kos} продемонстрирована не прямая зависимость точности прогноза от точности настройки модели на историю. На примере задачи параметрической идентификации фильтрационной модели для нефтяного месторождения в двухфазной постановке, показана важность использования всего объёма исходных данных. В качестве прогнозируемого параметры выступает пластовое давление, характеризующее “энергетический” потенциал залежи и расходы воды.
+	В настоящей работе представлено исследование зависимости адаптационных и прогнозных характеристик модели от степени доверия к исходным данным разного вида. В работах \cite{mus}, \cite{kos} продемонстрирована не прямая зависимость точности прогноза от точности настройки модели на историю. На примере задачи параметрической идентификации фильтрационной модели для нефтяного месторождения в двухфазной постановке, показана важность использования всего объёма исходных данных. В качестве прогнозируемого значения выступает пластовое давление, характеризующее “энергетический” потенциал залежи и расходы воды.
 
 \section{Mathematical Models}
 Для решения поставленной задачи в качестве фильтрационной модели использовалась двумерная математическая модель фильтрации несжимаемой "цветной" жидкости \cite{bas}. Использование модели цветной жидкости предполагает: одинаковую вязкость жидкостей равную $\mu$, прямо пропорциональную зависимость относительной фазовой проницаемости от насыщенности соответствующей фазой, отсутствие влияния насыщенности на давление, капиллярные силы не учитываются, давление фаз принимается равным. Таким образом уравнения фильтрации можно записать следующим образом: 
@@ -83,19 +83,14 @@ q_{i\:aq}, \;при\;(x,y) \in \Gamma_{out}
 	i = l,w.
 \end{equation*}
 Замыкающие соотношения:
-\begin{equation*}
-	S_w + S_o = 1,
-\end{equation*}
 \begin{equation} \label{kr}
-	k_w = S_w, \quad k_o = 1 - S_w,
+	S_w + S_o = 1;\quad
+	k_w = S_w, \quad k_o = 1 - S_w; \quad P = P_0,\quad S_w = S_{w0}\mbox{,\quad \mbox{при} $t=0$},
 \end{equation}
-\begin{equation*}
-	P = P_0,\quad S_w = S_{w0}\mbox{,\quad при $t=0$},
-\end{equation*}
 где $k$ - проницаемость, $P$ - пластовое давление, $\phi$ - пористость, $S$ - насыщенность, нижний индекс $i$ обозначает $l$ - жидкость (вода и нефть), $w$ - вода, или  $k_{r}$ - относительная фазовая проницаемость, $q_k$ - расход флюида в $k$-той скважине, $\Gamma_{in}$ - множество координат источников/стоков (скважин), $\Gamma_{out}$ - внешняя граница, $P_0$ - пластовое давление и $S_{w0}$ - водонасыщенность в начальный момент времени $t=0$, $q_{aq}$ - удельный расход флюида через внешнюю границу, который находится по формуле:
 
 \begin{equation*} \label{qaq}
-q_{i\:aq} = \lambda \frac{kk_{ri}}{\mu}(P|_{\Gamma_{out}}-P_c),
+q_{i\:aq} = \lambda \frac{kk_{ri}}{\mu}(P_c - P|_{\Gamma_{out}}),
 \end{equation*}
 где $P_{c}$ - на контуре питания ($P_c = P_0$), $\lambda$ - коэффициент продуктивности аквифера. Предполагается, что водонасыщенность контура питания $S_{c\:w} = 1$.
 Решение обратной задачи заключается в поиске поля проницаемости $k = k(x,y)$ при котором расчётные значения пластового давления и расхода воды на скважинах будут удовлетворительно совпадать с исходными значениями соответствующих параметров. Обратная задача решается в оптимизационной постановке, которая заключается в минимизации целевой функции $J$. Целевую функцию можно записать в виде суммы слагаемых, каждое из которых является произведением функции характеризующей отклонение расчётных значений от контрольных и весового коэффициента для соответствующего типа переменной. В качестве меры отклонения выбрана средняя квадратичная ошибка "Mean Squared Error" (MSE). 
@@ -132,7 +127,7 @@ $u_{min}$ и $u_{max}$ - минимальный и максимальные зн
 \begin{equation} \label{dq_du}
 \frac{\partial q_{w\:c}^i}{\partial u_k} = k_{w}^i \frac{\partial q_{l\:c}^i}{\partial u_k} + q_{l\:c}^i \frac{\partial k_{w}^i}{\partial u_k} = q_{l\:c}^i \frac{\partial k_{w}^i}{\partial s_w^i} \frac{\partial s_w^i}{\partial p_c^i}\frac{\partial p_c^i}{\partial u_k} =  q_{l\:c}^i  \frac{\partial s_w^i}{\partial p_c^i}\frac{\partial p_c^i}{\partial u_k}.
 \end{equation}
-В используемой модели на скважинах задаются расходы жидкости, то первое слагаемое в (\ref{dq_du}) равняется 0, так как настраиваемый параметр (управление) $u_k$ не может влиять на значение расходов жидкости. В случает решения задачи при заданных забойных давлениях это слагаемое необходимо учитывать.
+В используемой модели на скважинах задаются расходы жидкости, тогда первое слагаемое в (\ref{dq_du}) равняется 0, так как настраиваемый параметр (управление) $u_k$ не может влиять на значение расходов жидкости. В случает решения задачи при заданных забойных давлениях это слагаемое необходимо учитывать.
 
 Основная вычислительная сложность заключается в вычислении значений $\frac{\partial p_c^i}{\partial u_k}$ и $\frac{\partial s_w^i}{\partial p_с^i}$. Их расчёт выполняется численно при использовании уравнений (\ref{fil} - \ref{fil2}) и на основе подхода \cite{opt}. Используемый алгоритм расчёта производных возможен для применения с другими техниками восстановления поля проницаемости \cite{leg}.
 
@@ -205,21 +200,31 @@ The research was carried out within the state assignment of Ministry of Science 
 %
 % The Bibliography
 %
-\begin{thebibliography}{99}
-\bibitem{mus} E.N.Musakaev, S.P.Rodionov, D.Y.Legostaev, V.P.Kosyakov,  «Parameter identification for sector filtration model of an oil reservoir with complex structure» // AIP Conference Proceedings 2125,030113 2019;
+\begin{thebibliography}{20}
+\bibitem{mus} E. N. Musakaev, S. P. Rodionov, D. Y. Legostaev, and V. P. Kosyakov,
+"Parameter identification for sector filtration model of an oil reservoir with complex structure",
+AIP Conference Proceedings 2125, 030113 (2019).
 
-\bibitem{kos} V. P. Kosyakov. "Structural and Parametric Identification of an Aquifer Model for an Oil Reservoir". Lobachevskii J Math. 2020. V. 41, P. 1242–1247.
+\bibitem{kos} V. P. Kosyakov, "Structural and Parametric Identification
+of an Aquifer Model for an Oil Reservoir". Lobachevskii J. Math.
+{\bf 41}, 1242--1247 (2020).
 
-\bibitem{bas} K. S. Basniev, N. M. Dmitriev, R. D. Kanevskaya, V. M. Maksimov. \textit{Underground hydromechanics}. M.-Izhevsk: Institute for Computer Research, 2006. [in Russian]
+\bibitem{bas} K. S. Basniev, N. M. Dmitriev, R. D. Kanevskaya, and V. M. Maksimov,
+\textit{Underground hydromechanics}. M.-Izhevsk: Institute for
+Computer Research, 2006 [in Russian].
 
-\bibitem{azi} H. Aziz, E. Settari. \textit{Mathematical modeling of reservoir systems}.  M.-Izhevsk: Institute for Computer Research, 2004. [in Russian]
+\bibitem{azi} H. Aziz and E. Settari, \textit{Mathematical modeling of reservoir systems}.
+M.-Izhevsk: Institute for Computer Research, 2004 [in Russian].
 
-\bibitem{opt} V.P.Kosyakov, S.P.Rodionov "Optimal control of wells on the basis of two-phase filtration equations". Proceedings of MIPT. 2016. V. 8, N 3. P. 79–90.
+\bibitem{opt} V. P. Kosyakov and S. P. Rodionov, "Optimal control of wells on the basis
+of two-phase filtration equations", Proceedings of MIPT {\bf 8} (3),
+79--90 (2016).
 
-\bibitem{leg} V. P. Kosyakov,  D. Yu. Legostaev.“Using elements of machine learning to
-solve the inverse problem of reconstructing the hydraulic conductivity feld for a fltration
-problem”. Tyumen State University Herald. Physical and Mathematical Modeling. Oil, Gas,
-Energy, V. 8, N 2 (30), P. 129-149.
+\bibitem{leg} V. P. Kosyakov and  D. Yu. Legostaev, "Using elements of machine learning to
+solve the inverse problem of reconstructing the hydraulic 
+conductivity feld for a fltration problem", Tyumen State University
+Herald. Physical and Mathematical Modeling. Oil, Gas, Energy {\bf 8}
+(2 (30)), 129--149.
 
 \end{thebibliography}
 

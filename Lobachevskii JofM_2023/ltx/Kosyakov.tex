@@ -1,5 +1,5 @@
 %%
-%% ****** ljmsamp.tex 13.06.2018 ******
+%% ****** Generated 24.03.23 by LJM TeX-constructor******
 %%
 \documentclass[
 11pt,%
@@ -15,29 +15,45 @@ centertags]%
 {revtex4}
 \usepackage{ljm}
 
-\begin{document}
-	
-	
-	\titlerunning{Short form of the title} % for running heads
-	\authorrunning{V. P. Kosyakov} % for running heads
-	%\authorrunning{First-Author, Second-Author} % for running heads
-	
-	\title{Investigation of the influence of weight coefficients in solving the problem of identification of permeability for an oil field}
-	% Splitting into lines is performed by the command \\
-	% The title is written in accordance with the rules of capitalization.
-	
-	\author{\firstname{V.~P.}~\surname{Kosyakov}}
-	\email[E-mail: ]{lik.24@yandex.ru}
-	\affiliation{Tyumen Branch of Khristianovich Institute of Theoretical and Applied Mechanics SB RAS, Taymirskaya Str. 74, 625026, Tyumen, Russia}
-	
-	
-	\received{March 23, 2023} % The date of receipt to the editor, i.e. December 06, 2017
-	
-	\maketitle
-	\textbf{Abstract}. In the process of modeling the development of an oil field, one of the important steps is the solution of the inverse problem, the solution of which, as a rule, consists in the selection of model parameters for the best fit to the history of development. To solve the inverse problem, heterogeneous initial data are used, the degree of influence on the result of the solution of which is determined by their weight coefficients. In addition, the purpose of modeling is not only to repeat the development indicators for the historical period, but also to obtain a reliable forecast of the behavior of the modeled object in the future.
-	In this work, using the example of solving the problem of parametric identification of the permeability field for modeling the development of an oil field, a study was made of the influence of the choice of weight coefficients on the accuracy of the model tuning and its predictive characteristics. It is shown that the correct choice of weight coefficients makes it possible to obtain a model with the best predictive properties. To assess the accuracy of the model and select the option of its history matching, it is recommended to use additional metrics other than the objective function.
 
-\textbf{Keywords}: inverse problem, parametric identification, modeling, filtering, metric
+
+\setcounter{page}{3}
+
+\begin{document}
+\titlerunning{Influence of weight coefficients on the solution of the inverse problem} % for running heads
+\authorrunning{Kosyakov} % for running heads
+%\authorrunning{First-Author, Second-Author} % for running heads
+
+\title{Investigation of the Influence of Weight Coefficients in Solving the Problem of Identification of Permeability for an Oil Field}
+% Splitting into lines is performed by the command \\
+% The title is written in accordance with the rules of capitalization.
+
+\author{\firstname{V. P.}~\surname{Kosyakov}}
+\email[E-mail: ]{lik.24@yandex.ru}
+\affiliation{Tyumen Branch of Khristianovich Institute of Theoretical and Applied Mechanics SB RAS, Taymirskaya Str. 74, 625026, Tyumen, Russia}
+
+
+%\noaffiliation % If the author does not specify a place of work.
+
+%\firstcollaboration{(Submitted by ) } % Add if you know submitter.
+%\lastcollaboration{ }
+
+
+\received{March 24, 2023} % The date of receipt to the editor, i.e. December 06, 2017
+
+
+\begin{abstract} % You shouldn't use formulas and citations in the abstract.
+In the process of modeling the development of an oil field, one of the important steps is the solution of the inverse problem, the solution of which, as a rule, consists in the selection of model parameters for the best fit to the history of development. To solve the inverse problem, heterogeneous initial data are used, the degree of influence on the result of the solution of which is determined by their weight coefficients. In addition, the purpose of modeling is not only to repeat the development indicators for the historical period, but also to obtain a reliable forecast of the behavior of the modeled object in the future.
+	In this work, using the example of solving the problem of parametric identification of the permeability field for modeling the development of an oil field, a study was made of the influence of the choice of weight coefficients on the accuracy of the model tuning and its predictive characteristics. It is shown that the correct choice of weight coefficients makes it possible to obtain a model with the best predictive properties. To assess the accuracy of the model and select the option of its history matching, it is recommended to use additional metrics other than the objective function.
+\end{abstract}
+\subclass{76S05,90C31} % Enter 2010 Mathematics Subject Classification.
+\keywords{inverse problem, parametric identification, modeling, filtering, metric} % Include keywords separeted by comma.
+
+\maketitle
+
+% Text of article starts here.
+
+
 
 \section{INTRODUCTION}
 	At present, the creation of digital (numerical) twins of various objects and physical processes, which, as a rule, are based on mathematical models, has become widespread. For the successful use of such models in practice, a necessary condition is the reproduction of the actual behavior of the object under study. To meet this requirement for numerical models, the history matching procedure is performed, which is a solution of an inverse problem in order to select some model parameters, as well as initial and/or boundary conditions, if they are not known with sufficient accuracy. 
@@ -89,7 +105,7 @@ where $p_c^i$ is the calculated value of reservoir pressure, $p_f^i$ is the actu
 \begin{equation*}
 u_{min}\leq\ \boldsymbol{u}\leq u_{max},
 \end{equation*}
-$u_{min}$ и $u_{max}$ - minimum and maximum values for each parameter.
+$u_{min}$ and $u_{max}$ - minimum and maximum values for each parameter.
 
 When using the gradient optimization method, it is necessary to find the components of the objective function gradient, which can be written in the following form:
 \begin{equation}\label{grad}
@@ -182,14 +198,11 @@ It can be seen from the figure that the history matching option, taking into acc
 
 As a result of the study, it was shown that the accuracy of solving the inverse problem depends on the choice of weight coefficients that characterize the degree of influence on the setting of a certain type of data. The use of a combination of initial data makes it possible to increase the degree of regularization of the problem. The accuracy of the model for the history matching and validation periods depends on the proportions of the weights chosen. The dependence of the accuracy of tuning and forecasting for an individual indicator is not linear on the corresponding weight coefficient. The dependence is characterized by the presence of minima and maxima, which indicates that the degree of consideration of different indicators affect the tuning process and can help to find the most accurate solution. In view of the peculiarities of the methodology for solving inverse problems in the optimization formulation, which consists in minimizing one function that includes heterogeneous data, it is advisable to analyze other metrics that allow us to evaluate the accuracy of tuning and forecasting on the other hand. Given the availability of a set of calibrated models, third-party metrics will allow you to choose the most appropriate model in terms of the requirements for it.
 
-
 \section{FUNDING}
 The research was carried out within the state assignment of Ministry of Science and Higher Education of the Russian Federation (project No. 121030500156-6).
 
-%
-% The Bibliography
-%
-\begin{thebibliography}{99}
+\begin{thebibliography}{20}
+
 	
 \bibitem{mus} E.N.Musakaev, S.P.Rodionov, D.Y.Legostaev, V.P.Kosyakov, "Parameter identification for sector filtration model of an oil reservoir with complex structure" // AIP Conference Proceedings 2125,030113 2019;
 
@@ -205,7 +218,6 @@ The research was carried out within the state assignment of Ministry of Science 
 solve the inverse problem of reconstructing the hydraulic conductivity feld for a fltration
 problem". Tyumen State University Herald. Physical and Mathematical Modeling. Oil, Gas,
 Energy, V. 8, N 2 (30), P. 129-149.
-
 
 \end{thebibliography}
 
