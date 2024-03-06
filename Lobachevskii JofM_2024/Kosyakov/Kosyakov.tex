@@ -16,11 +16,11 @@ centertags]%
 \usepackage{ljm}
 \begin{document}
 
-\titlerunning{Application of machine learning elements} % for running heads
+\titlerunning{The application of machine learning elements} % for running heads
 %\authorrunning{First-Author at al.} % for running heads
 \authorrunning{Kosyakov, Legostaev} % for running heads
 
-\title{Application of machine learning elements \\ to reconstruct the permeability and compressibility fields \\ of an oil reservoir development element}
+\title{The application of machine learning \\ to restoring the mobility and compressibility properties \\ of an oil reservoir element}
 % Splitting into lines is performed by the command \\
 % The title is written in accordance with the rules of capitalization.
 
@@ -39,14 +39,14 @@ centertags]%
 \firstcollaboration{(Submitted by ...)} % Add if you know submitter.
 %\lastcollaboration{ }
 
-\received{June 13, 2018} % The date of receipt to the editor, i.e. December 06, 2017
+\received{       , 2024} % The date of receipt to the editor, i.e. December 06, 2017
 
 
 \begin{abstract} % You shouldn't use formulas and citations in the abstract.
 In the oil industry, there is a noticeable trend towards using proxy models to simulate various levels of complexity in order to make operational predictions. In particular, machine learning techniques are being actively developed in the context of the digitalization and automation of production processes.
-This paper presents an approach to combining a physically relevant fluid flow model with machine learning methods in order to address adaptation and prediction challenges. The approach is demonstrated through the use of synthetic oil reservoir models.
+This paper proposes a method for combining a physically relevant fluid flow model with machine learning techniques to address the challenges of history-matching and prediction. The approach is demonstrated using synthetic oil reservoir models.
 A feature of the considered synthetic model is the presence of a pronounced zonal inhomogeneity of the permeability field. 
-Within the framework of the proposed approach, a single-phase filtration model, simplified in comparison with the original formulation, was used, which was history-matched by restoring the field of reservoir filtration parameters using a network of radial basis functions. Based on the reconstructed field, the connection coefficients between the wells were calculated, which qualitatively and quantitatively correspond to the true well connection. The next step was to train the recurrent neural network in order to predict the water cut of the produced fluid. The use of a recurrent neural network made it possible to reproduce the characteristic non-monotonic behavior of the water cut of the produced fluid, caused by non-stationary modes of operation of injection and production wells. A combination of the presented models makes it possible to predict the volume of the produced fluid and its phase composition. To assess the predictive properties of the models, the actual data set was divided into training and test intervals.
+Within the proposed approach, a simplified single-phase filtration model was used, compared to the original formulation. This model was history-matched using a network of radial basis functions and  and a fully connected linear layer to restore the field of reservoir parameters. Based on this reconstructed field, connection coefficients were calculated between wells, which corresponded qualitatively and quantitatively to the true connections. To assess the predictive property of the model, the dataset was divided into training and testing intervals.
 \end{abstract}
 
 \subclass{76S05,90C31} % Enter 2010 Mathematics Subject Classification.
@@ -58,9 +58,9 @@ Within the framework of the proposed approach, a single-phase filtration model, 
 % Text of article starts here.
 
 \section{Introduction}
-Currently, in the oil industry, in addition to the use of traditional hydrodynamic models, the use of simplified proxy models has become widespread. This use of simplified modeling reduces computational costs and also reduces the requirements for the quality and completeness of source data. The development and application of proxy modeling in inverse and optimization problems are relevant, as these are the most resource-intensive tasks. Apart from physically meaningful models, such as material balance \cite{mus1}, super elements, CRM \cite{bek} and streamlines \cite{pot}, approaches based on machine learning techniques are also being explored  \cite{tem}, \cite{uma}. However, the use of machine learning-based techniques alone as predictive models cannot ensure that the results are accurate from a physical perspective. The combined use of physically meaningful models and machine learning techniques avoids these kinds of problems \cite{kos2}. The goal of this research is to develop proxy models that are based on the theory of fluid flow in porous media and machine learning principles. 
+Currently, in the oil industry, in addition to the use of traditional hydrodynamic models, the use of simplified proxy models has become widespread. This use of simplified modeling reduces computational costs and also reduces the requirements for the quality and completeness of source data. The development and application of proxy modeling in inverse and optimization problems are relevant, as these are the most resource-intensive tasks. Apart from physically meaningful models, such as material balance \cite{mus1}, super elements, CRM \cite{bek} and streamlines \cite{pot}, approaches based on machine learning techniques are also being explored  \cite{tem}, \cite{uma}. However, the use of machine learning-based techniques alone as predictive models cannot ensure that the results are accurate from a physical perspective. The combined use of physically meaningful models and machine learning techniques avoids these kinds of problems \cite{kos2}. The goal of this research is to develop proxy models that are based on the theory of fluid flow through porous medium and machine learning principles. 
 
-The figure \ref{fig:schime1} illustrates the general approach used in this work. The algorithm combines machine learning techniques (ML) with a physical model of single-phase fluid flow (Flow), which acts as one of the components in a "hybrid" neural network architecture. In this framework, some of the data from the "Input ML" is fed as input into the machine learning module. The output values from the machine learning process are then calculated and combined with the remaining data from the Input Flow to act as the input for the Flow calculations. To tune parameters in the machine learning model, we use the results from solving a similar problem, which enables us to compute gradients for the filtration process. Gradient calculations for the machine learning components are performed using the standard backpropagation error method.For the single-phase flow model, the gradient calculation is a separate and time-consuming process with a computational complexity that is typically comparable to or greater than that of direct calculations. The gradient calculation for the single-phase flow model is performed in a separate block when solving the conjugate problem.
+The figure \ref{fig:schime1} illustrates the general approach used in this work. The algorithm combines machine learning techniques (ML) with a physical model of single-phase fluid flow (Flow), which acts as one of the components in a "hybrid" neural network architecture. In this framework, some of the data from the "Input ML" is fed as input into the machine learning module. The output values from the machine learning process are then calculated and combined with the remaining data from the "input Flow" to act as the input for the "Flow" calculations. To tune parameters in the machine learning model, we use the results from solving a similar problem, which enables us to compute gradients for the filtration process. Gradient calculations for the machine learning components are performed using the standard backpropagation error method. For the single-phase flow model, the gradient calculation is a separate and time-consuming process with a computational complexity that is typically comparable to or greater than that of direct calculations. The gradient calculation for the single-phase model is performed in a separate block during the solution of the conjugate problem.
 
 \begin{figure}
 	\centering
@@ -225,7 +225,7 @@ The resulting dataset was used to solve the inverse problem. In order to assess 
 	\label{fig:prod_rate}
 \end{figure}
 
-The initial reservoir pressure was set to $20 MPa$. At the boundaries of the development area, a constant reservoir pressure of $20 MPa$ was maintained. The parameters of the rock and fluid were as follows: porosity = $0.2$, absolute permeability, as shown in Fig. \ref{fig.:scheme}, effective viscosity = $1 Pa*s$, layer thickness = $4 m$, effective elastic capacity $10^{-4} MPa^{-1}$.
+The initial reservoir pressure was set to $20 MPa$. At the boundaries of the development area, a constant reservoir pressure of $20 MPa$ was maintained. The parameters of the rock and fluid were as follows: porosity = $0.2$, absolute permeability, as shown in Fig. \ref{fig:schime}, effective viscosity = $1 Pa*s$, layer thickness = $4 m$, effective elastic capacity $10^{-4} MPa^{-1}$.
 
 The optimization problem was solved using the optimization algorithms included in the Flux package (Descent and ADAM). As a result, mobility maps Fig. \ref{fig:mob} and maps of effective compressibility Fig. \ref{fig:comp} were obtained. Although there are differences, it can be seen that these fields qualitatively resemble the original ones \ref{fig:schime}. In addition to the mobility map, Table 1 presents the values of connections between wells. These were obtained by partially excluding variables from the numerical filtration model (And). The highest values for the I2-P1 and I3-P3 connections correspond to zones with high permeability (channels). The coupling coefficients make sense of conductivity between wells per unit thickness of formation. Similar values can be obtained through pairwise hydraulic monitoring of the wells.
 
@@ -242,7 +242,36 @@ The optimization problem was solved using the optimization algorithms included i
 	\end{minipage}
 \end{figure}
 
-A quantitative comparison between the actual and reconstructed fields of overall mobility was conducted based on the relationships derived from the values between wells. A comparison between the main links is provided in Table \ref{tabl:connection}, which demonstrates that the rank order of reconstructed links fully aligns with that of actual links. Additionally, a satisfactory level of quantitative agreement was achieved between the values of bonds: on average, the absolute error is 9\%. Therefore, the reconstructed field of overall mobility faithfully reproduces the key characteristics of the actual field both qualitatively and quantitatively.
+A quantitative comparison between the true and estimated total mobility fields was carried out, based on the interwell connectivity. The interwell connectivity comparison is shown in Table  \ref{tabl:connection}. It shows that the rank order of estimated values closely matches that of true values. Additionally, there is a satisfactory level of agreement interwell connectivity values, with an average absolute error of 9\%. Therefore, the estimated generalized mobility field adequately reproduces the key characteristics of the original field.
+
+\begin{table}[h!]
+	\caption{Coefficients of interwell connectivity}	
+	\label{tabl:connection}	
+	\begin{center}
+		\begin{tabular}{c|c|c|c|c}
+			\hline
+			Well source &  Well drain & True value & Estimated  value & MAPE, \% \\
+			\hline
+			I1 & P1 & 0.522 & 0.503 & 3.6 \\
+			I4 & P3 & 0.352 & 0.343 & 2.7 \\
+			I1 & P3 & 0.335 & 0.274 & 18.2 \\
+			I2 & P1 & 0.253 & 0.218 & 14.0 \\
+			I3 & P3 & 0.241 & 0.213 & 11.7 \\
+			I2 & P3 & 0.236 & 0.216 & 8.5 \\
+			I4 & P5 & 0.226 & 0.203 & 10.3 \\
+			I4 & P4 & 0.221 & 0.203 & 8.1 \\
+			I1 & P2 & 0.209 & 0.200 & 4.4 \\
+			I3 & P5 & 0.182 & 0.171 & 6.3 \\
+			I2 & P4 & 0.171 & 0.171 & 0.0 \\
+			I3 & P2 & 0.160 & 0.170 & 6.0 \\
+			\hline
+			
+		\end{tabular}
+	\end{center}
+\end{table}
+
+
+For real reservoir systems, the magnitude of the connections between wells is usually not reliably known. In view of this, one of the main criteria for assessing the quality of model adaptation is reservoir pressure measurements. In Fig. \ref{fig:cp} the comparison of the values of the actual and calculated pressures for a pair of wells I1, P1 obtained after the restoration of the field of general mobility and effective compressibility is given. In the figure, different markers indicate the values of the corresponding training (train) and test (test) samples. A satisfactory coincidence of pressures was obtained in the training and test samples, the values of the average relative error for which are 3.6 and 5.5\%, respectively. The model demonstrates satisfactory accuracy in the test sample, which confirms its predictive properties.
 
 \begin{figure}
 	\centering
@@ -251,39 +280,25 @@ A quantitative comparison between the actual and reconstructed fields of overall
 	\label{fig:cp}
 \end{figure}
 
-For real reservoir systems, the magnitude of the connections between wells is usually not reliably known. In view of this, one of the main criteria for assessing the quality of model adaptation is reservoir pressure measurements. In Fig. \ref{fig:cp} the comparison of the values of the actual and calculated pressures for a pair of wells I1, P1 obtained after the restoration of the field of general mobility and effective compressibility is given. In the figure, different markers indicate the values of the corresponding training (train) and test (test) samples. A satisfactory coincidence of pressures was obtained in the training and test samples, the values of the average relative error for which are 3.6 and 5.5\%, respectively. The model demonstrates satisfactory accuracy in the test sample, which confirms its predictive properties.
+A quantitative comparison of the true and estimated values of effective compressibility is shown in Fig. \ref{fig:hist}. In the figure, columns 1 and 2 correspond to the true and estimated values. The values were obtained by averaging the values obtained from the map and included in the corresponding Voronoi polygon for the corresponding well. As can be seen in the figure, the algorithm has been able to reproduce the increased elasticity in the relevant zone (wells I3, I4 and P5) to a satisfactory level of accuracy.
 
+\begin{figure}
+	\centering
+	\includegraphics[width=0.7\linewidth]{fig7}
+	\caption{Comparison of the true (1) and estimate (2) values of the average value of effective compressibility near wells.}
+	\label{fig:hist}
+\end{figure}
 
-
-\begin{table}[h!]
-	\caption{Coefficients of connections between wells}	
-	\label{tabl:connection}	
-	\begin{center}
-		\begin{tabular}{c|c|c|c|c}
-			\hline
-			Connection & True value & Estimated  value & MAPE, \% \\
-			\hline
-			I2-P1 & 20.6 & 20.6 & 0.1 \\ 
-			I3-P3 & 5.51 & 5.51 & 0.1 \\ 
-			P3-I2 & 0.488 & 0.488 & 0.1 \\ 
-			I1-P1 & 0.338 & 0.338 & 0.1 \\ 
-			I4-P3 & 0.297 & 0.297 & 0.1 \\ 
-			P3-I1 & 0.296 & 0.296 & 0.1 \\ 
-			P5-I3 & 0.295 & 0.295 & 0.1 \\ 
-			\hline
-			
-		\end{tabular}
-	\end{center}
-\end{table}
 
 \section{CONCLUSIONS}
 
-An approach to the combined use of filtering theory and machine learning has been developed in order to adapt a one-phase model to historical data. Using a synthetic model of an oil field element with a regionally inhomogeneous permeability field and effective compressibility as an example, the implementation of these approaches has been demonstrated. The adaptation of the one-phase filtration model to historical data was achieved by reconstructing the permeability and effective compressibility fields using a network of radial basis functions. Based on the reconstructed fields, the coupling coefficients between wells are calculated, which quantitatively correspond to true connections in the system.
+An approach to combine fluid flow through porous medium theory with machine learning to solve the problem of matching a model to historical data is presented. Using a synthetic model of an oil field element with a regionally heterogeneous permeability field and effective compressibility as an example, the implementation of this approach is demonstrated.
+
+The matching of the single-phase flow model to historical data was achieved by reconstructing the permeability and compressibility fields using a network of radial basis functions and a fully connected linear layer. Based on the reconstructed mobility field, coupling coefficients between wells were calculated that quantitatively corresponded to true connections in the system.Using the calculated elasticity capacity field, an averaging method obtains average values for elasticity capacity indicators near the wells. These average values also qualitatively coincide with the initial values. Thus, the proposed approach enables the restoration of the characteristic appearance of the zone heterogeneity in the simulated object. Due to the universal nature of this approach, it suggests the possibility of utilizing more complex machine learning algorithms in future applications.
 
 
 \begin{acknowledgments}
-The research was carried out at the expense of a grant from the Russian Science Foundation No. 24-21-00468,
-https://rscf.ru/project/24-21-00468/»
+The research was funded by the Russian Science Foundation (project No. 24-21-00468), https://rscf.ru/project/24-21-00468/
 \end{acknowledgments}
 
 % Text of article ends here.
