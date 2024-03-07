@@ -14,13 +14,15 @@ noshowpacs,%
 centertags]%
 {revtex4}
 \usepackage{ljm}
+
+
 \begin{document}
 
-\titlerunning{The application of machine learning elements} % for running heads
+\titlerunning{Estimation of Transmissivity and Storativity Fields} % for running heads
 %\authorrunning{First-Author at al.} % for running heads
 \authorrunning{Kosyakov, Legostaev} % for running heads
 
-\title{The application of machine learning \\ to restoring the mobility and compressibility properties \\ of an oil reservoir element}
+\title{Estimation of Oil Reservoir \\ Transmissivity and Storativity Fields \\ Using a Radial Basis Function Network \\ Based on Inverse Problem Solving}
 % Splitting into lines is performed by the command \\
 % The title is written in accordance with the rules of capitalization.
 
@@ -64,7 +66,7 @@ The figure \ref{fig:schime1} illustrates the general approach used in this work.
 
 \begin{figure}
 	\centering
-	\includegraphics[width=0.7\linewidth]{fig0}
+	\includegraphics[width=0.7\linewidth]{images/fig1.eps}
 	\caption{A calculation scheme for the proposed algorithm for the combined use of machine learning and a single-phase flow model.}
 	\label{fig:schime1}
 \end{figure}
@@ -106,7 +108,7 @@ aquifer boundary transmissibility (includes aquifer productivity factor). The go
 
 Obtaining the values of $k(x_1,x_2)$ and $\beta(x_1,x_2)$ can be done in various ways. For example, by interpolating and extrapolating measured values near the wells within the well space. This article suggests using a machine learning model to obtain the desired values. A two-layer neural network, consisting of a radial basis function (RBF) layer and a fully connected (linear) layer, was chosen as the machine learning model. The RBF layer determines the influence of each basis at a selected point in space.
 
-When solving the inverse problem, it is more convenient to switch from permeability $k$ to general mobility $\lambda$. Using this parameter, it is possible to consider many filtration parameters that affect the flow structure (such as viscosity, relative phase permeability, and others). The fields of general mobility $\lambda$ and effective compressibility $\beta$ can be considered as functional dependences of $\lambda(\mathbf{x})$ and $\beta(\mathbf{x})$, where $\mathbf{x} = (x_1,x_2)$ is a vector of spatial coordinates, and a network of radially basis functions is used for the dependency.
+When solving the inverse problem, it is more convenient to switch from permeability $k$ to general mobility $\lambda$ \cite{abd}. Using this parameter, it is possible to consider many filtration parameters that affect the flow structure (such as viscosity, relative phase permeability, and others). The fields of general mobility $\lambda$ and effective compressibility $\beta$ can be considered as functional dependences of $\lambda(\mathbf{x})$ and $\beta(\mathbf{x})$, where $\mathbf{x} = (x_1,x_2)$ is a vector of spatial coordinates, and a network of radially basis functions is used for the dependency.
 
 
 \begin{eqnarray}\label{rbf}
@@ -196,53 +198,58 @@ The objective function ({\ref{mse}}) used to solve the inverse problem is not al
 
 \section{Results}
 
-The proposed approach was tested using a synthetic model of an oil reservoir measuring 1000 x 1000 meters and 9 wells, 5 of these were producing wells (from P1 to P5), and 4 were injection wells (from I1 to I4). The model includes highly conductive inclusions with $k_1 = 1d$ and $k_2 = 0.5 d$, and the permeability in the main part of the region is $k = 0.1d$. Wells I3, I4 and P5 are located in an area where the effective compressibility is increased by 2 times.
+The proposed approach was tested using a synthetic model of an oil reservoir measuring 1000 x 1000 meters and 9 wells, including 5 producing wells (P1-P5) and 4 injection wells (I1-I4). The model includes highly conductive inclusions with permeability $k_1 = 200*10^{-15} m^2$ and $k_2 = 100*10^{-15} m^2$, in the main part of the region permeability is $k = 20*10^{-15}  m^2$. Wells I3, I4 and P5 are located in an area where the effective compressibility is increased by 2 times.
 
 \begin{figure}
 	\centering
-	\includegraphics[width=0.7\linewidth]{fig1}
+	\includegraphics[width=0.7\linewidth]{images/fig2.eps}
 	\caption{Schematic representation of the computational domain}
 	\label{fig:schime}
 \end{figure}
 
-To solve the inverse problem, fluid flow rates from producing and injection wells, obtained as a result of direct numerical modeling, were used as operating modes. Porosity, formation thickness, as well as initial and boundary conditions, corresponded to those in the direct problem.
+To solve the inverse problem, the fluid flow rates from the producing and injection wells obtained as a result of direct numerical modeling were used as operating modes. The porosity, formation thickness, and initial and boundary conditions corresponded to those in the direct problem.
 The inverse problem is solved using an optimization formulation in which the objective function is minimized. This is achieved by summing the functions (\ref{mse}) and (\ref{pnl}).
-When solving the problem, it was taken into consideration the possible lack of a complete dataset of reservoir pressure. In practice, only a limited number of pressure values are usually known, which rarely exceed 10-20\%. Consequently, of the results obtained by solving the direct problem, only 10\% of them were used as actual measurements of reservoir pressure, and the values were chosen at random. They served as true values in solving the inverse problem.
+The solution of the problem was obtained under conditions of possible absence of a complete set of data on reservoir pressure.
+In practice, only a limited number of pressure values are usually known, which rarely exceed 10-20\%. The results of pressure calculations, obtained as a result of solving a direct problem, are used as actual measurements of reservoir pressure by only 10\% of their total amount. The values were chosen randomly, and they serve as true values to solve the inverse problem.
 
-The simulation period lasted 10 years, during which time the wells operated according to the specified modes. The calculation step was 1 month. The time dependence of the injection rate of the injection wells, as shown in Fig. \ref{fig:inj_rate}, was obtained by random sampling and has a piecewise-constant form. Injection wells also shut down at a predetermined frequency. The downtime period ranged from 2 to 4 months. 
+The simulation period lasted 10 years, during which time the wells operated according to the specified modes. The calculation step was 1 month. The time dependence of the injection rate for the wells, as shown in Fig. \ref{fig:inj_rate}, was obtained by random sampling and has a piecewise-constant form. Injection wells also shut down at a predetermined frequency. The downtime period ranged from 2 to 4 months. 
 The time series show production from the wells Fig. \ref{fig:prod_rate}, was generated by randomly sampling values and has a piecewise-constant structure. The start of production wells was carried out in 3-month increments.
 The resulting dataset was used to solve the inverse problem. In order to assess the predictive capabilities of the model, the data was divided into training and testing sets. The first seven years of development history were allocated to the training dataset and used to matching the model. The seven- to ten-year period was included in the test set for which forecasting calculations were carried out.
 
 \begin{figure}
-	\center{\includegraphics[height=0.40\linewidth]{fig2.png}}
+	\center{\includegraphics[height=0.40\linewidth]{images/fig3.eps}}
 	\caption{Injectivity dynamics of injection wells I1-I4}
 	\label{fig:inj_rate}
 \end{figure}
 
 \begin{figure}
-	\center{\includegraphics[height=0.40\linewidth]{fig3.png}}
+	\center{\includegraphics[height=0.40\linewidth]{images/fig4.eps}}
 	\caption{Productivity dynamics of production wells P1-P5}
 	\label{fig:prod_rate}
 \end{figure}
 
 The initial reservoir pressure was set to $20 MPa$. At the boundaries of the development area, a constant reservoir pressure of $20 MPa$ was maintained. The parameters of the rock and fluid were as follows: porosity = $0.2$, absolute permeability, as shown in Fig. \ref{fig:schime}, effective viscosity = $1 Pa*s$, layer thickness = $4 m$, effective elastic capacity $10^{-4} MPa^{-1}$.
 
-The optimization problem was solved using the optimization algorithms included in the Flux package (Descent and ADAM). As a result, mobility maps Fig. \ref{fig:mob} and maps of effective compressibility Fig. \ref{fig:comp} were obtained. Although there are differences, it can be seen that these fields qualitatively resemble the original ones \ref{fig:schime}. In addition to the mobility map, Table 1 presents the values of connections between wells. These were obtained by partially excluding variables from the numerical filtration model (And). The highest values for the I2-P1 and I3-P3 connections correspond to zones with high permeability (channels). The coupling coefficients make sense of conductivity between wells per unit thickness of formation. Similar values can be obtained through pairwise hydraulic monitoring of the wells.
+The optimization problem was solved using the optimization algorithms included in the Flux package (Descent and ADAM). As a result, pearmobility maps Fig. \ref{fig:mob} and maps of storativity Fig. \ref{fig:comp} were obtained.
+From the figures, it can be seen that the restored fields qualitatively reproduce the original ones \ref{fig:schime}, although they have visual differences.
 
 \begin{figure}
 	\begin{minipage}[h]{0.48\linewidth}
-		\center{\includegraphics[height=0.60\linewidth]{fig4.png}}
-		\caption{The reconstituted field of mobility}
+		\centering
+		\includegraphics[height=0.80\linewidth]{images/fig5a.eps}\\
+		a)
 		\label{fig:mob}
 	\end{minipage} \hfill
 	\begin{minipage}[h]{0.48\linewidth}
-		\center{\includegraphics[height=0.60\linewidth]{fig5.png}}
-		\caption{The restored compressibility field}
+		\centering
+		\includegraphics[height=0.80\linewidth]{images/fig5b.eps} \\
+		b)
 		\label{fig:comp}
 	\end{minipage}
+	\caption{The estimated permobility field (a) and storativity field (b)}
 \end{figure}
 
-A quantitative comparison between the true and estimated total mobility fields was carried out, based on the interwell connectivity. The interwell connectivity comparison is shown in Table  \ref{tabl:connection}. It shows that the rank order of estimated values closely matches that of true values. Additionally, there is a satisfactory level of agreement interwell connectivity values, with an average absolute error of 9\%. Therefore, the estimated generalized mobility field adequately reproduces the key characteristics of the original field.
+A quantitative comparison was made between the true and estimated fields of general mobility based on interwell connectivity. A comparison of the relationships between interwell connections is presented in Table \ref{tabl:connection}. These values were obtained by partly excluding variables from a numerical single-phase flow model \cite{and}. High values for compounds I1-P1 and I4-P3 correspond to high-permeability zones (channels). This indicates that the ranking order of the estimated values is similar to the order of true values. Additionally, there is a reasonable level of agreement between the values of interwell connection with an average absolute error of 6\%. Therefore, the estimated general mobility field adequately represents the key characteristics of the original field. 
 
 \begin{table}[h!]
 	\caption{Coefficients of interwell connectivity}	
@@ -252,49 +259,46 @@ A quantitative comparison between the true and estimated total mobility fields w
 			\hline
 			Well source &  Well drain & True value & Estimated  value & MAPE, \% \\
 			\hline
-			I1 & P1 & 0.522 & 0.503 & 3.6 \\
-			I4 & P3 & 0.352 & 0.343 & 2.7 \\
-			I1 & P3 & 0.335 & 0.274 & 18.2 \\
-			I2 & P1 & 0.253 & 0.218 & 14.0 \\
-			I3 & P3 & 0.241 & 0.213 & 11.7 \\
-			I2 & P3 & 0.236 & 0.216 & 8.5 \\
-			I4 & P5 & 0.226 & 0.203 & 10.3 \\
-			I4 & P4 & 0.221 & 0.203 & 8.1 \\
-			I1 & P2 & 0.209 & 0.200 & 4.4 \\
-			I3 & P5 & 0.182 & 0.171 & 6.3 \\
-			I2 & P4 & 0.171 & 0.171 & 0.0 \\
-			I3 & P2 & 0.160 & 0.170 & 6.0 \\
+				I1 & P1 & 53.5 & 50.3 & 5.8 \\
+				I1 & P3 & 34.1 & 27.4 & 19.7 \\
+				I4 & P3 & 33.7 & 34.3 & 1.7 \\
+				I2 & P1 & 25.2 & 21.8 & 13.6 \\
+				I2 & P3 & 24.2 & 21.6 & 10.7 \\
+				I4 & P5 & 21.8 & 20.3 & 7.0 \\
+				I3 & P3 & 21.4 & 21.3 & 0.4 \\
+				I4 & P4 & 21.0 & 20.3 & 3.4 \\
+				I1 & P2 & 20.3 & 20.0 & 1.8 \\
+				I2 & P4 & 17.7 & 17.1 & 3.5 \\
+				I3 & P2 & 16.9 & 17.0 & 0.4 \\
+				I3 & P5 & 16.7 & 17.1 & 2.1 \\
 			\hline
-			
 		\end{tabular}
 	\end{center}
 \end{table}
 
-
-For real reservoir systems, the magnitude of the connections between wells is usually not reliably known. In view of this, one of the main criteria for assessing the quality of model adaptation is reservoir pressure measurements. In Fig. \ref{fig:cp} the comparison of the values of the actual and calculated pressures for a pair of wells I1, P1 obtained after the restoration of the field of general mobility and effective compressibility is given. In the figure, different markers indicate the values of the corresponding training (train) and test (test) samples. A satisfactory coincidence of pressures was obtained in the training and test samples, the values of the average relative error for which are 3.6 and 5.5\%, respectively. The model demonstrates satisfactory accuracy in the test sample, which confirms its predictive properties.
+The value of the connection between wells is often not reliably known in real oil reservoirs. These values can be obtained by using paired hydraulic well monitoring, but such studies are rarely conducted. In view of this, one of the main criteria for evaluating the quality of the model is the correspondence between calculated and measured reservoir pressure. In Fig. \ref{fig:cp}, the comparison of true and estimated pressure values for wells is shown. The estimated pressure values were obtained for a model with restored permeability and storativity fields. Different markers indicate the values of training (train) and testing (test) samples in the figure, hollow and filled circles resperctively. A satisfactory match was achieved for the training and testing samples, with average relative errors of 2.6\% and 3.5\% respectively. The model shows satisfactory accuracy in the testing sample, which confirms its predictive capabilities.
 
 \begin{figure}
 	\centering
-	\includegraphics[width=0.7\linewidth]{fig6}
-	\caption{Comparison of true and calculated values of reservoir pressure for production and injection wells. Hollow markers correspond to the training set, filled markers correspond to the test set. The dotted line indicates the 10\% deviation interval}
+	\includegraphics[width=0.5\linewidth]{images/fig6.eps}
+	\caption{Comparison of true and estimated values of reservoir pressure for production and injection wells. The dotted line indicates the 10\% deviation interval}
 	\label{fig:cp}
 \end{figure}
 
-A quantitative comparison of the true and estimated values of effective compressibility is shown in Fig. \ref{fig:hist}. In the figure, columns 1 and 2 correspond to the true and estimated values. The values were obtained by averaging the values obtained from the map and included in the corresponding Voronoi polygon for the corresponding well. As can be seen in the figure, the algorithm has been able to reproduce the increased elasticity in the relevant zone (wells I3, I4 and P5) to a satisfactory level of accuracy.
+A quantitative comparison of the true and estimated values of storativity is shown in Fig. \ref{fig:hist}. In the figure, columns 1 and 2 correspond to the true and estimated values, respectively. The values were obtained by averaging the values obtained from the map and included in the corresponding Voronoi polygon for the corresponding well. As can be seen from the figure, the algorithm was able to reproduce the increased storativity in the corresponding zones (wells I3, I4, and P5). Despite the differences in the values of average storativity, a qualitative correspondence between the true and the estimated values was achieved.
 
 \begin{figure}
 	\centering
-	\includegraphics[width=0.7\linewidth]{fig7}
-	\caption{Comparison of the true (1) and estimate (2) values of the average value of effective compressibility near wells.}
+	\includegraphics[width=0.7\linewidth]{images/fig7.eps}
+	\caption{Comparison of the true (1) and estimate (2) values of the average value of storativity near wells.}
 	\label{fig:hist}
 \end{figure}
 
-
 \section{CONCLUSIONS}
 
-An approach to combine fluid flow through porous medium theory with machine learning to solve the problem of matching a model to historical data is presented. Using a synthetic model of an oil field element with a regionally heterogeneous permeability field and effective compressibility as an example, the implementation of this approach is demonstrated.
+The paper presents an approach to the joint use of the theory of fluid flow through a porous medium with machine learning to solve the problem of comparing the model with historical data. Using the example of a synthetic model of an oil field element with regionally heterogeneous fields of permeability and storativity, the implementation of this approach is demonstrated.
 
-The matching of the single-phase flow model to historical data was achieved by reconstructing the permeability and compressibility fields using a network of radial basis functions and a fully connected linear layer. Based on the reconstructed mobility field, coupling coefficients between wells were calculated that quantitatively corresponded to true connections in the system.Using the calculated elasticity capacity field, an averaging method obtains average values for elasticity capacity indicators near the wells. These average values also qualitatively coincide with the initial values. Thus, the proposed approach enables the restoration of the characteristic appearance of the zone heterogeneity in the simulated object. Due to the universal nature of this approach, it suggests the possibility of utilizing more complex machine learning algorithms in future applications.
+The matching of the single-phase flow model to historical data was achieved by reconstructing the permeability and storativity fields using a network of radial basis functions and a fully connected linear layer. Based on the reconstructed permeability field, interwell connectivity coefficients were calculated that quantitatively correspond to the true value. Using the storativity field, an averaging method calculates average values for the storativity indicators near the wells. These average values also qualitatively correspond with the initial values. Therefore, the proposed approach allows the restoration of the characteristic appearance of zone heterogeneity in a simulated object. Because of the universal nature of this approach, it suggests the possibility of using more complex machine learning algorithms in future applications.
 
 
 \begin{acknowledgments}
@@ -334,9 +338,11 @@ V. P. Kosyakov and D. Yu. Legostaev, "Using elements of machine learning to solv
 
 \bibitem{bas}
 \refitem{book}
-K. S. Basniev, N. M. Dmitriev, R. D. Kanevskaya, and V. M. Maksimov,  \textit{Underground Hydromechanics} (Inst.
-Komp'yut. Issled., Moscow, 2006) [in Russian].
+K. S. Basniev, N. M. Dmitriev, R. D. Kanevskaya, and V. M. Maksimov, \textit{Underground Hydromechanics} (Inst. Komp'yut. Issled., Moscow, 2006) [in Russian].
 
+\bibitem{abd}
+\refitem{book}
+A. Satter, G. M. Iqbal, \textit{Reservoir Engineering: The Fundamentals, Simulation, and Management of Conventional and Unconventional Recoveries} (Gulf Professional Publishing, 2016).
 
 \bibitem{kos3}
 \refitem{article}
