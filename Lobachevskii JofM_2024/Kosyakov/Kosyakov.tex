@@ -195,7 +195,7 @@ The objective function ({\ref{mse}}) used to solve the inverse problem is not al
 
 \section{Results}
 
-The proposed approach was tested using a synthetic model of an oil reservoir measuring 1000 x 1000 meters and 9 wells, including 5 producing wells (P1-P5) and 4 injection wells (I1-I4). The model includes highly conductive inclusions with permeability $k_1 = 200*10^{-15} m^2$ and $k_2 = 100*10^{-15} m^2$, in the main part of the region permeability is $k = 20*10^{-15}  m^2$. Wells I3, I4 and P5 are located in an area where the storativity is increased by 2 times.
+The proposed approach was tested using a synthetic model of an oil reservoir measuring 1000 x 1000 meters and 9 wells, including 5 producing wells (P1-P5) and 4 injection wells (I1-I4). The model includes highly conductive inclusions with permeability $k_1 = 200*10^{-15} \text{m}^2$ and $k_2 = 100*10^{-15} \text{m}^2$, in the main part of the region permeability is $k = 20*10^{-15} \text{m}^2$. Wells I3, I4 and P5 are located in an area where the storativity is increased by 2 times.
 
 \begin{figure}
 	\centering
@@ -225,7 +225,7 @@ The resulting dataset was used to solve the inverse problem. In order to assess 
 	\label{fig:prod_rate}
 \end{figure}
 
-The initial reservoir pressure was set to $20 MPa$. At the boundaries of the development area, a constant reservoir pressure of $20 MPa$ was maintained. The parameters of the rock and fluid were as follows: porosity = $0.2$, absolute permeability, as shown in Fig. \ref{fig:schime}, effective viscosity = $1 mPa*s$, layer thickness = $4 m$, effective elastic capacity $10^{-4} MPa^{-1}$.
+The initial reservoir pressure was set to $20 \text{MPa}$. At the boundaries of the development area, a constant reservoir pressure of $20 \text{MPa}$ was maintained. The parameters of the rock and fluid were as follows: porosity = $0.2$, absolute permeability, as shown in Fig. \ref{fig:schime}, effective viscosity = $1 \text{mPa*s}$, layer thickness = $4 \text{m}$, effective elastic capacity = $10^{-4} \text{MPa}^{-1}$.
 
 The optimization problem was solved using the optimization algorithms included in the Flux package (Descent and ADAM). As a result, pearmobility maps Fig. \ref{fig:mob}a and maps of storativity Fig. \ref{fig:comp}b were obtained.
 From the figures, it can be seen that the restored fields qualitatively reproduce the original ones \ref{fig:schime}, although they have visual differences.
@@ -302,10 +302,8 @@ The matching of the single-phase flow model to historical data was achieved by r
 
 The solution to the inverse problem was obtained for the case where there was a significant number of missing data points in the original dataset. This makes the proposed method suitable for practical application.This algorithm has a universal nature, suggesting the possibility of using more complex machine learning algorithms in future applications.
 
-
-\begin{acknowledgments}
-The research was funded by the Russian Science Foundation (project No. 24-21-00468), https://rscf.ru/project/24-21-00468/
-\end{acknowledgments}
+\section{FUNDING}
+The research was supported by the Russian Scientific Foundation (project No. 24-21-00468), https://rscf.ru/project/24-21-00468/
 
 % Text of article ends here.
 
