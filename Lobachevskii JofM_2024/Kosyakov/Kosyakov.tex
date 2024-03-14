@@ -46,9 +46,10 @@ centertags]%
 
 \begin{abstract} % You shouldn't use formulas and citations in the abstract.
 In the oil industry, there is a noticeable trend towards using proxy models to simulate various levels of complexity in order to make operational predictions. In particular, machine learning techniques are being actively developed in the context of the digitalization and automation of production processes.
-This paper proposes a method for combining a physically relevant fluid flow model with machine learning techniques to address the challenges of history-matching and prediction. The approach is demonstrated using synthetic oil reservoir models.
-A feature of the considered synthetic model is the presence of a pronounced zonal inhomogeneity of the permeability field. 
-Within the proposed approach, a simplified single-phase filtration model was used, compared to the original formulation. This model was history-matched using a network of radial basis functions and  and a fully connected linear layer to restore the field of reservoir parameters. Based on this reconstructed field, connection coefficients were calculated between wells, which corresponded qualitatively and quantitatively to the true connections. To assess the predictive property of the model, the dataset was divided into training and testing intervals.
+This paper proposes a method for combining a physically relevant fluid flow model with machine learning techniques to address the challenges of history-matching and prediction. The approach is demonstrated using synthetic oil reservoir models. 
+The synthetic model has significant zonal inhomogeneities in the permeability and storativity fields.
+The simplified single-phase flow through a porous medium model was used for the proposed approach. This model was matched to the historical values of the development parameters by restoring the fields of the reservoir parameters. Properties fields were reconstructed using a radial basis functions network and a fully connected linear layer.
+Based on the reconstructed field, interwell connectivity coefficients were calculated, which corresponded qualitatively and quantitatively to the true interwell connectivity coefficients. The predictive characteristics of the proposed approach were evaluated by split the historical dataset into training and test time intervals.
 \end{abstract}
 
 \subclass{76S05,35R30} % Enter 2010 Mathematics Subject Classification.
@@ -227,7 +228,7 @@ The resulting dataset was used to solve the inverse problem. In order to assess 
 
 The initial reservoir pressure was set to $20 \text{MPa}$. At the boundaries of the development area, a constant reservoir pressure of $20 \text{MPa}$ was maintained. The parameters of the rock and fluid were as follows: porosity = $0.2$, absolute permeability, as shown in Fig. \ref{fig:schime}, effective viscosity = $1 \text{mPa*s}$, layer thickness = $4 \text{m}$, effective elastic capacity = $10^{-4} \text{MPa}^{-1}$.
 
-The optimization problem was solved using the optimization algorithms included in the Flux package (Descent and ADAM). As a result, pearmobility maps Fig. \ref{fig:mob}a and maps of storativity Fig. \ref{fig:comp}b were obtained.
+The optimization problem was solved using the optimization algorithms included in the Flux package (Descent and ADAM). As a result, permeability maps Fig. \ref{fig:mob}a and maps of storativity Fig. \ref{fig:comp}b were obtained.
 From the figures, it can be seen that the restored fields qualitatively reproduce the original ones \ref{fig:schime}, although they have visual differences.
 
 \begin{figure}
@@ -243,7 +244,7 @@ From the figures, it can be seen that the restored fields qualitatively reproduc
 		b)
 		\label{fig:comp}
 	\end{minipage}
-	\caption{The estimated permobility field (a) and storativity field (b)}
+	\caption{The estimated permeability field (a) and storativity field (b)}
 \end{figure}
 
 In the figures Fig. \ref{fig:mob}a and \ref{fig:comp}b black crosses indicate the obtained node positions for the network of radial basis functions. It can be seen that they are unevenly distributed, with a significant number of nodes concentrated in the highly permeable region $k_1$ and slightly less in the region $k_2$. In addition, a significant part of the nodes are located in an area with increased elasticity, although with a lower density.
