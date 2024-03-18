@@ -61,14 +61,14 @@ Based on the reconstructed field, interwell connectivity coefficients were calcu
 % Text of article starts here.
 
 \section{Introduction}
-Currently, in the oil industry, in addition to the use of traditional hydrodynamic models, the use of simplified proxy models has become widespread. This use of simplified modeling reduces computational costs and also reduces the requirements for the quality and completeness of source data. The development and application of proxy modeling in inverse and optimization problems are relevant, as these are the most resource-intensive tasks. Apart from physically meaningful models, such as material balance \cite{mus1}, super elements, CRM \cite{bek} and streamlines \cite{pot}, approaches based on machine learning techniques are also being explored  \cite{tem}, \cite{uma}. However, the use of machine learning-based techniques alone as predictive models cannot ensure that the results are accurate from a physical perspective. The combined use of physically meaningful models and machine learning techniques avoids these kinds of problems \cite{kos2}. The goal of this research is to develop proxy models that are based on the theory of fluid flow through porous medium and machine learning principles. 
+Currently, in the oil industry, in addition to the use of traditional hydrodynamic models, the use of simplified proxy models has become widespread. This use of simplified modeling reduces computational costs and also reduces the requirements for the quality and completeness of source data. The development and application of proxy modeling in inverse and optimization problems are relevant, as these are the most resource-intensive tasks. In addition to physically-based models, such as material balance \cite{mus1}, super elements, CRM \cite{bek}, streamlines \cite{pot} and  multi-phase flow models \cite{ele}, \cite{kos}, approaches based on machine learning techniques are also being investigated  \cite{tem}, \cite{uma}. However, the use of machine learning-based techniques alone as predictive models cannot guarantee that the results will be precise from a physical aspect. The combined use of physically-based models and machine learning techniques avoids these kinds of problems \cite{kos2}. The goal of this research is to develop proxy models that are based on the theory of fluid flow through porous medium and machine learning principles. 
 
-The figure \ref{fig:schime1} illustrates the general approach used in this work. The algorithm combines machine learning techniques (ML) with a physical model of single-phase fluid flow (Flow), which acts as one of the components in a "hybrid" neural network architecture. In this framework, some of the data from the "Input ML" is fed as input into the machine learning module. The output values from the machine learning process are then calculated and combined with the remaining data from the "input Flow" to act as the input for the "Flow" calculations. To tune parameters in the machine learning model, we use the results from solving a similar problem, which enables us to compute gradients for the filtration process. Gradient calculations for the machine learning components are performed using the standard backpropagation error method. For the single-phase flow model, the gradient calculation is a separate and time-consuming process with a computational complexity that is typically comparable to or greater than that of direct calculations. The gradient calculation for the single-phase model is performed in a separate block during the solution of the conjugate problem.
+The figure \ref{fig:schime1} illustrates the general approach used in this work. The algorithm combines machine learning techniques (ML) with a physical model of single-phase fluid flow (Flow), which acts as one of the components in a "hybrid" neural network architecture. According to the algorithm, some of data from the "Input ML" is transmitted as input data to the machine learning module. The output values from the machine learning process are then calculated and combined with the remaining data from the "input Flow" to act as the input for the "Flow" calculations. The result of solving the adjoint problem are the values of the gradients for the fluid flow process, which are used to configure the parameters in a machine learning model. Gradient calculations for the machine learning components are performed using the standard backpropagation error method. For the single-phase flow model, the gradient calculation is a separate and time-consuming process with a computational complexity that is typically comparable to or greater than that of direct calculations. The gradient calculation for the single-phase model is performed in a separate block during the solution of the conjugate problem.
 
 \begin{figure}
 	\centering
 	\includegraphics[width=0.7\linewidth]{images/fig1.eps}
-	\caption{A calculation scheme for the proposed algorithm for the combined use of machine learning and a single-phase flow model.}
+	\caption{Scheme for the algorithm for the combined use of machine learning and a single-phase flow model.}
 	\label{fig:schime1}
 \end{figure}
 
@@ -78,7 +78,7 @@ The purpose of this research is to develop proxy models based on the theory of f
 
 \subsection{Single-phase flow model}
 To solve this problem, a two-dimensional mathematical model of single-phase flow of a
-weakly compressible fluid was used as a filtration model \cite{bas}:
+weakly compressible fluid was used as a fluid flow model \cite{bas}:
 
 \begin{equation} \label{fil}
 	\triangledown \cdot \left[\frac{k}{\mu}\triangledown P \right] = \beta^* \frac{\partial P}{\partial t} + \delta(x_1,x_2),
@@ -109,7 +109,7 @@ aquifer boundary transmissibility (includes aquifer productivity factor). The go
 
 Obtaining the values of $k(x_1,x_2)$ and $\beta^*(x_1,x_2)$ can be done in various ways. For example, by interpolating and extrapolating measured values near the wells within the well space. This article suggests using a machine learning model to obtain the desired values. A two-layer neural network, consisting of a radial basis function (RBF) layer and a fully connected (linear) layer, was chosen as the machine learning model. The RBF layer determines the influence of each basis at a selected point in space.
 
-When solving the inverse problem, it is more convenient to switch from permeability $k$ to general mobility $\lambda$ \cite{abd}. Using this parameter, it is possible to consider many filtration parameters that affect the flow structure (such as viscosity, relative phase permeability, and others). Instead of effective compressibility $\beta^*$, it is more convenient to switch to the storativity parameter $\beta$, which allows a complete assessment of elastic-capacitive characteristics. The fields of general mobility $\lambda$ and storativity $\beta$ can be considered as functional dependences of $\lambda(\mathbf{x})$ and $\beta(\mathbf{x})$, where $\mathbf{x} = (x_1,x_2)$ is a vector of spatial coordinates, and a network of radially basis functions is used for the dependency.
+When solving the inverse problem, it is more convenient to switch from permeability $k$ to general mobility $\lambda$ \cite{abd}. Using this parameter, it is possible to consider many hydraulic parameters that affect the flow structure (such as viscosity, relative phase permeability, and others). Instead of effective compressibility $\beta^*$, it is more convenient to switch to the storativity parameter $\beta$, which allows a complete assessment of elastic-capacitive characteristics. The fields of general mobility $\lambda$ and storativity $\beta$ can be considered as functional dependences of $\lambda(\mathbf{x})$ and $\beta(\mathbf{x})$, where $\mathbf{x} = (x_1,x_2)$ is a vector of spatial coordinates, and a network of radially basis functions is used for the dependency.
 
 \begin{eqnarray}\label{rbf}
 	f_i(\mathbf{x}) = exp \left(\frac{-\lVert \mathbf{x} - \mathbf{c_f}_i \rVert^2}{\epsilon_{fi}^2}\right), \quad
@@ -148,9 +148,9 @@ The objective function can be expressed as the sum of terms, each term being the
 where $p_c^i$ is the calculated value of reservoir pressure, $p_f^i$
 is the true value, $i$ is the measurement number, $N_p$ is the
 number of reservoir pressure measurements,$N_\lambda$ is the
-number of known mobility values and $N_\beta$ is the number of known values of storativity, $\lambda$ is the true value of mobility near the welll, $\lambda_c$ is the calculated value of mobility, $\lambda_l$ and $\lambda_r$ are the left and right restrictions on the value of total mobility, $\beta$ is the true value of the storativity near the well. $\beta_c$ is the estimated value of elasticity, $\beta_{l}$ and $\beta_{r}$ represent the left and right limits on the elasticity range. The index $f$ means actual values (fact), and $c$ means calculated, $w_p$, $w_\lambda$ and $w_\beta$ are weighting coefficients that take into account the degree of influence of various parameters (dimension, data quality, etc.). The arguments of the objective function responsible for pressure, are the true (measured) and calculated values of reservoir pressure at the location of the well at specified points in time.
+number of known mobility values and $N_\beta$ is the number of known values of storativity, $\lambda$ is the true value of mobility near the welll, $\lambda_c$ is the calculated value of mobility, $\lambda_l$ and $\lambda_r$ are the left and right restrictions on the value of total mobility, $\beta$ is the true value of the storativity near the well. $\beta_c$ is the estimated value of elasticity, $\beta_{l}$ and $\beta_{r}$ represent the left and right limits on the elasticity range. The index $f$ is actual values (fact), and $c$ means calculated, $w_p$, $w_\lambda$ and $w_\beta$ are weighting coefficients that take into account the degree of influence of various parameters (dimension, data quality, etc.). The arguments of the objective function responsible for pressure, are the true (measured) and calculated values of reservoir pressure at the location of the well at specified points in time.
 
-The second and third terms in the objective function ({\ref{mse}})--({\ref{mse1}}) are responsible for adjusting the mobility field and storativity to match known values of the reservoir's filtration-capacitive properties. Furthermore, the calculated values for mobility and storativity may vary within a range from $\lambda_l$ to $\lambda_r$ and from $\beta_l$ to $\beta_r$. However, this does not lead to an increase in the objective function, as long as the interval is acceptable. The presence of this interval is linked to changes over time in the phase ratio of liquid produced from wells and its effect on the values of mobility and storativity near the wells.
+The second and third terms in the objective function ({\ref{mse}})--({\ref{mse1}}) are responsible for adjusting the mobility field and storativity to match known values of the reservoir's hydraulic-capacitive properties. Furthermore, the calculated values for mobility and storativity may vary within a range from $\lambda_l$ to $\lambda_r$ and from $\beta_l$ to $\beta_r$. However, this does not lead to an increase in the objective function, as long as the interval is acceptable. The presence of this interval is linked to changes over time in the phase ratio of liquid produced from wells and its effect on the values of mobility and storativity near the wells.
 
 For using gradient optimization method, it is necessary to calculate the gradient components of the objective function. These can be written as follows:
 \begin{equation*}\label{grad}
@@ -180,7 +180,7 @@ Additional terms can be added to the target function (\ref{mse}), which are pena
 \end{equation}
 where $w_{dist}$ and $w_{dist}$ are the weight coefficients for penalty functions in terms of the distance between the bases and the position relative to the boundaries of the calculated area, $N_\textbf{x}$ is the number of bases, $r_{i,j}$ is the distance between the $i$th and $j$th $r_{min}$ is the minimum allowable distance between the bases, $r_{i,c}$ is the distance from the i-th basis to the center of the calculated area, $f_{relu}$ is the activation function (rectified linear unit).
 
-Gradients are computed using the standard machine learning technique of error backpropagation, which in this instance involves solving a conjugate problem for the single-phase flow model  \cite{kos3}, \cite{far}. This is done by solving for the derivative of the objective function with respect to physically meaningful parameters such as mobility and storativity $\frac{\partial J}{\partial \lambda}$ and $\frac{\partial J}{\partial \beta}$. These derivatives are then used to calculate the gradients of the objective function, which are then passed to the machine learning algorithm. The Flux library \cite{inn}, written in the Julia programming language, was used to implement the presented approach, which allows for the calculation of gradients in a straightforward manner.
+Gradients are computed using the standard machine learning technique of error backpropagation, which in this instance involves solving a conjugate problem for the single-phase flow model  \cite{kos3}, \cite{far}. This is done by solving for the derivative of the objective function with respect to physical parameters such as mobility and storativity $\frac{\partial J}{\partial \lambda}$ and $\frac{\partial J}{\partial \beta}$. These derivatives are then used to calculate the gradients of the objective function, which are then passed to the machine learning algorithm. The Flux library \cite{inn}, written in the Julia programming language, was used to implement the presented approach, which allows for the calculation of gradients in a straightforward manner.
 
 
 The solution of the inverse problem (\ref{rp}) is found  numerically
@@ -310,32 +310,38 @@ The research was supported by the Russian Scientific Foundation (project No. 24-
 
 %
 % The Bibliography
-%
+% TYUMEN STATE UNIVERSITY HERALD Physical and Mathematical Modeling. Oil, Gas, Energy
 
 \begin{thebibliography}{99}
 \bibitem{mus1}
 \refitem{article}
- E. N. Musakaev, S. P. Rodionov and N. G. Musakaev, "Hierarchical Approach to Identifying Fluid Flow Models in a Heterogeneous Porous Medium," Mathematics, {\bf 9}(24), 3289 (2021).
+ E. N. Musakaev, S. P. Rodionov and N. G. Musakaev, \textquotedblleft Hierarchical Approach to Identifying Fluid Flow Models in a Heterogeneous Porous Medium,\textquotedblright Mathematics, {\bf 9}(24), 3289 (2021).
 
 \bibitem{bek}
 \refitem{article}
- A. D. Bekman, T. A. Pospelova and D. V. Zelenin,  "A new approach to water cut forecasting based on results of capacitance resistance modeling" Vestn. Tyumen. Univ., Fiz. Mat. Model. Neft', Gaz, Energet. {\bf 6} (1(21)), 192--207 (2020).
+ A. D. Bekman, T. A. Pospelova and D. V. Zelenin, \textquotedblleft A new approach to water cut forecasting based on results of capacitance resistance modeling,\textquotedblright Tyumen State University Herald. Physical and Mathematical Modeling. Oil, Gas, Energy. {\bf 6} (1(21)), 192--207 (2020).
 
 \bibitem{pot}
 \refitem{article}
- K.A. Potashev, R.R. Akhunov and  A.B. Mazo, "Calculation of the flow rate between wells in the flow model of an oil reservoir using streamlines", Georesources. {\bf 24}(1), 27--35 (2022).
+ K.A. Potashev, R.R. Akhunov and  A.B. Mazo, \textquotedblleft Calculation of the flow rate between wells in the flow model of an oil reservoir using streamlines,\textquotedblright Georesources. {\bf 24}(1), 27--35 (2022).
+
+\bibitem{ele} A. V. Elesin, A. Sh. Kadyrova, \textquotedblleft Determination of the Anisotropic Reservoir Permeability by Liquid Flow Rate Measurements at Wells under Conditions of Three-Phase Filtration,\textquotedblright Lobachevskii J. Math.
+{\bf 44}, 1593--1599 (2023).
+
+\bibitem{kos} V. P. Kosyakov, \textquotedblleft Investigation of the Influence of Weight Coefficients in Solving the Problem of Permeability Identification for an Oil Field,\textquotedblright Lobachevskii J. Math.
+{\bf 44}, 1721--1727 (2023).
 
 \bibitem{tem}
 \refitem{article}
-P. Temirchev, M. Simonov, R. Kostoev, E. Burnaev, I. Oseledets, A. Akhmetov, A. Margarit, A. Sitnikov and D. Koroteev, "Deep neural networks predicting oil movement in a development unit", Journal of Petroleum Science and Engineering. 184. 106513 (2020).
+P. Temirchev, M. Simonov, R. Kostoev, E. Burnaev, I. Oseledets, A. Akhmetov, A. Margarit, A. Sitnikov and D. Koroteev, \textquotedblleft Deep neural networks predicting oil movement in a development unit,\textquotedblright Journal of Petroleum Science and Engineering. 184. 106513 (2020).
 
 \bibitem{uma}
 \refitem{article}
-A. W. Umanovskiy, "Proxy modeling pf reservoir hydrodynamics with graph neural networks",Vestn. Tyumen. Univ., Fiz. Mat. Model. Neft', Gaz, Energet. {\bf 8} (3(31)), 155--177 (2022).
+A. W. Umanovskiy, \textquotedblleft Proxy modeling pf reservoir hydrodynamics with graph neural networks,\textquotedblright Tyumen State University Herald. Physical and Mathematical Modeling. Oil, Gas, Energy. {\bf 8} (3(31)), 155--177 (2022).
 
 \bibitem{kos2}
 \refitem{article}
-V. P. Kosyakov and D. Yu. Legostaev, "Using elements of machine learning to solve the inverse problem of reconstructing the hydraulic conductivity feld for a fltration problem", Vestn. Tyumen. Univ., Fiz. Mat. Model. Neft', Gaz, Energet. {\bf 8} (2 (30)), 129--149 (2022).
+V. P. Kosyakov and D. Yu. Legostaev, \textquotedblleft Using elements of machine learning to solve the inverse problem of reconstructing the hydraulic conductivity feld for a fltration problem,\textquotedblright Tyumen State University Herald. Physical and Mathematical Modeling. Oil, Gas, Energy. {\bf 8} (2 (30)), 129--149 (2022).
 
 \bibitem{bas}
 \refitem{book}
@@ -347,15 +353,15 @@ A. Satter, G. M. Iqbal, \textit{Reservoir Engineering: The Fundamentals, Simulat
 
 \bibitem{kos3}
 \refitem{article}
-V.P.Kosyakov, S.P.Rodionov, "Optimal control of wells on the basis of two-phase filtration equations",  Tr. MFTI. {\bf 8}(3), 79--90 (2016).
+V.P.Kosyakov, S.P.Rodionov, \textquotedblleft Optimal control of wells on the basis of two-phase filtration equations,\textquotedblright Tr. MFTI. {\bf 8}(3), 79--90 (2016).
 
 \bibitem{far}
 \refitem{article}
-P. E. Farrell, D. A. Ham, S. W. Funke and M. E. Rognes, "Automated Derivation of the Adjoint of High-Level Transient Finite Element Programs", SIAM Journal on Scientific Computing, {\bf 35}(4) 369--393 (2013).
+P. E. Farrell, D. A. Ham, S. W. Funke and M. E. Rognes, \textquotedblleft Automated Derivation of the Adjoint of High-Level Transient Finite Element Programs,\textquotedblright SIAM Journal on Scientific Computing, {\bf 35}(4) 369--393 (2013).
 
 \bibitem{inn}
 \refitem{article}
-M. Innes, E. Saba, K. Fischer, D. Gandhi, M. C. Rudilosso, N. M. Joy, T. Karmali, A. Pal and V. B. Shah, "Fashionable Modelling with Flux", ArXiv. 1811.01457 (2018).
+M. Innes, E. Saba, K. Fischer, D. Gandhi, M. C. Rudilosso, N. M. Joy, T. Karmali, A. Pal and V. B. Shah, \textquotedblleft Fashionable Modelling with Flux,\textquotedblright ArXiv. 1811.01457 (2018).
 
 \bibitem{and}
 \refitem{book}
