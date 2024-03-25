@@ -1,0 +1,118 @@
+\documentclass[14pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage[english,russian]{babel}
+
+\usepackage{graphicx}
+\usepackage{mathtools,amssymb}
+\usepackage{amsmath}
+
+\usepackage{hyperref}
+
+\usepackage{subcaption}
+% Generate dummy text
+\usepackage{lipsum}  
+\usepackage{array,multirow}
+
+\def \adl {adl/}
+
+\begin{document}
+
+	Математическая модель:
+\begin{equation}\label{mm}
+	\beta V_p\frac{\partial p}{\partial t} = q + \sum_{i=1}^{N}T_i\left(p-p_i\right)
+\end{equation}
+
+\begin{equation}\label{mm1}
+	\beta V_p\frac{p^{n+1} - p^n}{\Delta t} = q^{n+1} + \sum_{i=1}^{N}T_i\left(p_i^{n+1}-p^{n+1}\right) + T_a\left(p_a - p^{n+1}\right)
+\end{equation}
+
+\begin{equation}
+	q^n = w\left(p^n-p_w^n\right)
+\end{equation}
+
+\begin{equation}
+	p^n = \frac{1}{w}q^n + p_w^n = w^*q^n + p_w^n
+\end{equation}
+
+\begin{equation}
+	\beta V_p \left(p^{n+1} - p^n\right) = q^{n+1}\Delta t + \sum_{i=1}^{N}T_i\left(p_i^{n+1}-p^{n+1}\right)\Delta t + T_a\left(p_a - p^{n+1}\right)\Delta t
+\end{equation}
+	
+\begin{eqnarray*}\label{mm2}
+	\beta V_p \left(p_w^{n+1} - p_w^n\right) + \beta V_p w\left(q^{n+1} - q^n\right) = \\
+	= q^{n+1}\Delta t + \sum_{i=1}^{N} T_i \left({p_w}_i^{n+1}-p_w^{n+1}\right)\Delta t + 
+	\sum_{i=1}^{N} T_i \left(w_i q_i^{n+1}-w q^{n+1}\right)\Delta t \\
+	+  T_a\left(p_a - p_w^{n+1}\right)\Delta t - T_a w^* q^{n+1}
+\end{eqnarray*}
+\begin{equation*}
+	v^* = \frac{1}{\beta V_p}
+\end{equation*}
+
+
+\begin{eqnarray*}\label{mm3}
+ \Delta p_w^{n+1}  = - w\left(q^{n+1} - q^n\right) 
+	+ q^{n+1} v^* \Delta t
+	+ v^* \sum_{i=1}^{N} T_i \left({p_w}_i^{n+1}-p_w^{n+1}\right)\Delta t + \\
+    + v^* \sum_{i=1}^{N} T_i \left(w_i q_i^{n+1}-w q^{n+1}\right)\Delta t 
+	+  v^* T_a\left(p_a - p_w^{n+1}\right)\Delta t - v^* T_a w^* q^{n+1}
+\end{eqnarray*}
+
+\begin{eqnarray*}\label{mm4}
+	p_w^{n+1} - p_w^m  = - w^*\left(q^{n+1} - q^m\right) 
+	+ \sum_{\tau=m+1}^{n+1}q^\tau v^* \Delta t
+	+ v^* \sum_{\tau=m}^{n}\sum_{i=1}^{N} T_i \left({p_w}_i^\tau-p_w^\tau\right)\Delta t + \\
+	+ v^*  \sum_{\tau=m}^{n} \sum_{i=1}^{N} T_i \left(w^*_i q_i^\tau-w^* q^\tau\right)\Delta t 
+	+  \sum_{\tau=m}^{n} v^* T_a\left(p_a - p_w^\tau\right)\Delta t - v^* T_a w^*  \sum_{\tau=m}^{n} q^\tau \Delta t
+\end{eqnarray*}
+
+
+
+	$p$ - пластовое давление;
+	
+	$p_w$ - забойное давление;
+	
+	$q_m$ - массовый расход;
+	
+	$\sigma = \sigma(x,y)$ - гидропроводность;
+	
+	$\kappa_j$ - коэффициент связи с пластом для j-той скважины;
+	
+	$\lambda$ - продуктивность контура питания (аквифера).
+	
+	$m$ - пористость.
+	
+	$h$ - эффективная толщина.
+	
+	
+	\begin{thebibliography}{20}
+		
+		\bibitem{raf} R. Holanda, "A State-of-the-Art Literature Review on Capacitance
+		Resistance Models for Reservoir Characterization
+		and Performance Forecasting" Rafael Wanderley de Holanda, Eduardo Gildin, Jerry L. Jensen, Larry W. Lake and C. Shah Kabir. Energies 2018, 11(12), 3368; https://doi.org/10.3390/en11123368
+		
+		\bibitem{kos} V. P. Kosyakov, "Structural and Parametric Identification
+		of an Aquifer Model for an Oil Reservoir". Lobachevskii J. Math.
+		{\bf 41}, 1242--1247 (2020).
+		
+		\bibitem{bas} K. S. Basniev, N. M. Dmitriev, R. D. Kanevskaya, and V. M. Maksimov,
+		\textit{Underground hydromechanics}. M.-Izhevsk: Institute for
+		Computer Research, 2006 [in Russian].
+		
+		\bibitem{azi} H. Aziz and E. Settari, \textit{Mathematical modeling of reservoir systems}.
+		M.-Izhevsk: Institute for Computer Research, 2004 [in Russian].
+		
+		\bibitem{opt} V. P. Kosyakov and S. P. Rodionov, "Optimal control of wells on the basis
+		of two-phase filtration equations", Proceedings of MIPT {\bf 8} (3),
+		79--90 (2016).
+		
+		\bibitem{leg} V. P. Kosyakov and  D. Yu. Legostaev, "Using elements of machine learning to
+		solve the inverse problem of reconstructing the hydraulic 
+		conductivity feld for a fltration problem", Tyumen State University
+		Herald. Physical and Mathematical Modeling. Oil, Gas, Energy {\bf 8}
+		(2 (30)), 129--149.
+		
+	\end{thebibliography}
+	
+\end{document}
