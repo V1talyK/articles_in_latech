@@ -522,21 +522,21 @@ RMSE = 0.726, 0.620, 0.880 МПа
 \end{figure}
 Из рисунков видно, что около 70\% скважин для пластового и забойного давления имеют отклонение менее 20 и 25 \% соответственно. Стоит отметить, что большая величина отклонения может свидетельствовать не только о плохой настройке модели, но и о проблеме в качестве данных (выбросы, ошибки). Поэтому для скважин имеющих большое значение отклонение необходимо выполнить процедуру отбраковки/анализа данных повторно. 
 Для настоящего объекта разработки отбраковка значений позволила исключить 57 замеров пластовых давлений и 83 замера забойного давления.
-На рисунках \ref{fig:din_gar_press_11} и \ref{fig:din_gar_press_45} в качестве примера представлена динамика расчётного и фактического давления для скважин №11 и №45 соответственно. Отбракованные замеры (выбросы) на рисунке помечены чёрным крестиком. 
+На рисунках \ref{fig:din_gar_press_11} и \ref{fig:din_gar_press_45} в качестве примера представлена динамика расчётного и фактического давления для скважин №11 и №47 соответственно. Отбракованные замеры (выбросы) на рисунке помечены чёрным крестиком. 
  \begin{figure}[!htb]
 	\centering
 	\begin{subfigure}[b]{0.9\linewidth}
-	\includegraphics[width=1.0\linewidth]{pic/din_gar_press_11}
+	\includegraphics[width=1.0\linewidth]{pic/p4/din_gar_press_11}
 	%\includesvg[scale=1.0\linewidth]{pic/gar_cp.svg}
 	\caption{}
 	\label{fig:din_gar_press_11}
 	\end{subfigure}
 	\begin{subfigure}[b]{0.9\linewidth}
-		\includegraphics[width=\linewidth]{pic/din_gar_press_45}
+		\includegraphics[width=\linewidth]{pic/p4/din_gar_press_47}
 		\caption{}
 		\label{fig:din_gar_press_45}
 	\end{subfigure}
-		\caption{Динамика фактического и восстановленного давления для скв. №11 (а) и скв. №45 (б)}
+		\caption{Динамика фактического и восстановленного давления для скв. №11 (а) и скв. №47 (б)}
 \end{figure}
 Отбраковка производится в автоматизированном режиме использовался метод "ящик с усами" \cite{BoxPlot}, где анализировалось отклонение замера от расчётной кривой, замеры имеющие значительное отклонение отбраковывались (присваивался весовой коэффициент 0). После чего процедура адаптации проводится ещё раз. 
 
@@ -630,7 +630,8 @@ RMSE = 0.726, 0.620, 0.880 МПа
 		\label{fig:well9_cp_m2}
 	\end{subfigure}
 	\label{fig:well9_cp}
-	\caption{Гистограмма метрики MAPE по скважинам для пластового (а) и забойного (б) давления}
+	\caption{Сопоставление фактических и расчётных значений давлений, где (а) -- модель М1, (б) -- модель М2}
+	
 \end{figure}
 Из рисунков видно что использование модели М2 позволило улучшить качество адаптации и восстановления пластового давления.
 
@@ -663,26 +664,50 @@ RMSE = 0.726, 0.620, 0.880 МПа
 \begin{figure}
 	\centering
 	\includegraphics[width=0.7\linewidth]{pic/map_gar}
-	\caption{}
 	\label{fig:mapgar}
+	\caption{Карта объекта разработки и выделенный сектор}
 \end{figure}
 
+В результате адаптации модели М2 были восстановлены значения пластового давления для всех скважин. Метрика MAPE для обучающей и тестовой выборки для 2-х моделей представлена на рисунке \ref{fig:bar_mape_gar_s1s2}.
+\begin{figure}
+	\centering
+	\includegraphics[width=0.8\linewidth]{pic/p4/rmse_bar_gar}
+	\caption{Гистограмма метрики RMSE настройки по скважинам для моделей M1 и М2}
+	\label{fig:bar_mape_gar_s1s2}
+\end{figure}
+
+\begin{figure}[!htb]
+	\begin{subfigure}[b]{0.45\linewidth}
+		\includegraphics[width=\linewidth]{pic/p4/cp_M1_gar}
+		\caption{}
+		\label{fig:well9_cp_m1}
+	\end{subfigure}
+	\begin{subfigure}[b]{0.45\linewidth}
+		\includegraphics[width=\linewidth]{pic/p4/cp_M2_gar}
+		\caption{}
+		\label{fig:well9_cp_m2}
+	\end{subfigure}
+	\label{fig:well9_cp}
+	\caption{Сопоставление фактических и расчётных значений давлений, где (а) -- модель М1, (б) -- модель М2}
+\end{figure}
+
+В качестве примера приведём графики динамики пластового давления для скважин №2 и №27 (см. рис. \ref{fig:din_gar_press_s1}).
 В результате восстановления получена динамика пластового давления 
 
  \begin{figure}[!htb]
 	\centering
 	\begin{subfigure}[b]{0.9\linewidth}
-		\includegraphics[width=1.0\linewidth]{pic/din_gar_press_w4}
-		%\includesvg[scale=1.0\linewidth]{pic/gar_cp.svg}
+		\includegraphics[width=1.0\linewidth]{pic/p4/gar_din_M1w2s1}
 		\caption{}
-		\label{fig:din_gar_press_11}
+		\label{fig:din_gar_press_2M2}
 	\end{subfigure}
 	\begin{subfigure}[b]{0.9\linewidth}
-		\includegraphics[width=\linewidth]{pic/din_gar_press_w5}
+		\includegraphics[width=\linewidth]{pic/p4/gar_din_M1w5s1}
 		\caption{}
-		\label{fig:din_gar_press_45}
+		\label{fig:din_gar_press_58M2}
 	\end{subfigure}
-	\caption{Динамика фактического и восстановленного давления для скв. №11 (а) и скв. №45 (б)}
+	\label{fig:din_gar_press_s1}
+	\caption{Динамика фактического и восстановленного давления для скв. №2 (а) и скв. №27 (б)}
 \end{figure}
 
 \newpage
